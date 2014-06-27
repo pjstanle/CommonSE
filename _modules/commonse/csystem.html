@@ -1,0 +1,1275 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>commonse.csystem &mdash; CommonSE 0.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/nrel.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="CommonSE 0.1.0 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li><a href="../../index.html">CommonSE 0.1.0 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for commonse.csystem</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/env python</span>
+<span class="c"># encoding: utf-8</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">csystem.py</span>
+
+<span class="sd">Created by Andrew Ning on 2/21/2012.</span>
+<span class="sd">Copyright (c) NREL. All rights reserved.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+
+<span class="c"># # !!!!!!!! NOTE ALL ANGLES SHOULD BE PASSED IN DEGREES !!!!!!!!!!!!!!</span>
+<span class="c"># def _rotateAboutZ(x, y, z, theta):</span>
+<span class="c">#     &quot;&quot;&quot;</span>
+<span class="c">#     x X y = z.  rotate c.s. about z, +theta</span>
+<span class="c">#     all angles in degrees</span>
+<span class="c">#     &quot;&quot;&quot;</span>
+
+<span class="c">#     theta = np.radians(theta)</span>
+<span class="c">#     c = np.cos(theta)</span>
+<span class="c">#     s = np.sin(theta)</span>
+
+<span class="c">#     xnew = x*c + y*s</span>
+<span class="c">#     ynew = -x*s + y*c</span>
+
+<span class="c">#     return xnew, ynew, z</span>
+
+
+<span class="c"># def _derivatives(obj, xstring, ystring, zstring, theta, rotateOtherWay):</span>
+
+<span class="c">#     x = getattr(obj, xstring)</span>
+<span class="c">#     y = getattr(obj, ystring)</span>
+
+<span class="c">#     xstring = &#39;d&#39; + xstring</span>
+<span class="c">#     ystring = &#39;d&#39; + ystring</span>
+<span class="c">#     zstring = &#39;d&#39; + zstring</span>
+
+<span class="c">#     thetaM = 1.0</span>
+<span class="c">#     if rotateOtherWay:</span>
+<span class="c">#         thetaM = -1.0</span>
+<span class="c">#     theta *= thetaM</span>
+
+<span class="c">#     theta = np.radians(theta)</span>
+<span class="c">#     c = np.cos(theta)</span>
+<span class="c">#     s = np.sin(theta)</span>
+
+<span class="c">#     one = np.ones_like(x)</span>
+<span class="c">#     zero = np.zeros_like(x)</span>
+
+<span class="c">#     dxnew = {}</span>
+<span class="c">#     dxnew[xstring] = c</span>
+<span class="c">#     dxnew[ystring] = s</span>
+<span class="c">#     dxnew[zstring] = zero</span>
+<span class="c">#     dxnew[&#39;dtheta&#39;] = (-x*s + y*c)*np.radians(thetaM)</span>
+
+<span class="c">#     dynew = {}</span>
+<span class="c">#     dynew[xstring] = -s</span>
+<span class="c">#     dynew[ystring] = c</span>
+<span class="c">#     dynew[zstring] = zero</span>
+<span class="c">#     dynew[&#39;dtheta&#39;] = (-x*c - y*s)*np.radians(thetaM)</span>
+
+<span class="c">#     dznew = {}</span>
+<span class="c">#     dznew[xstring] = zero</span>
+<span class="c">#     dznew[ystring] = zero</span>
+<span class="c">#     dznew[zstring] = one</span>
+<span class="c">#     dznew[&#39;dtheta&#39;] = zero</span>
+
+<span class="c">#     return dxnew, dynew, dznew</span>
+
+
+
+
+<div class="viewcode-block" id="DirectionVector"><a class="viewcode-back" href="../../csystem.html#commonse.csystem.DirectionVector">[docs]</a><span class="k">class</span> <span class="nc">DirectionVector</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Handles rotation of direction vectors to appropriate coordinate systems.</span>
+<span class="sd">    All angles must be in degrees.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">dx</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">dy</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">dz</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;3-Dimensional vector that depends on direction only (not position).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x : float or ndarray</span>
+<span class="sd">            x-direction of vector(s)</span>
+<span class="sd">        y : float or ndarray</span>
+<span class="sd">            y-direction of vector(s)</span>
+<span class="sd">        z : float or ndarray</span>
+<span class="sd">            z-direction of vector(s)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">dx</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">dx</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">dx</span><span class="p">[</span><span class="s">&#39;dx&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+            <span class="n">dx</span><span class="p">[</span><span class="s">&#39;dy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+            <span class="n">dx</span><span class="p">[</span><span class="s">&#39;dz&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+
+            <span class="n">dy</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">dy</span><span class="p">[</span><span class="s">&#39;dx&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+            <span class="n">dy</span><span class="p">[</span><span class="s">&#39;dy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+            <span class="n">dy</span><span class="p">[</span><span class="s">&#39;dz&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+
+            <span class="n">dz</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">dz</span><span class="p">[</span><span class="s">&#39;dx&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+            <span class="n">dz</span><span class="p">[</span><span class="s">&#39;dy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+            <span class="n">dz</span><span class="p">[</span><span class="s">&#39;dz&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">dx</span> <span class="o">=</span> <span class="n">dx</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dy</span> <span class="o">=</span> <span class="n">dy</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dz</span> <span class="o">=</span> <span class="n">dz</span>
+
+
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">fromArray</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">array</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;initialize with NumPy array</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        array : ndarray</span>
+<span class="sd">            construct DirectionVector using array of size 3</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">cls</span><span class="p">(</span><span class="n">array</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">array</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">array</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+
+
+    <span class="k">def</span> <span class="nf">toArray</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;convert DirectionVector to NumPy array</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        array : ndarray</span>
+<span class="sd">            NumPy array in order x, y, z containing DirectionVector data</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">])</span>
+
+
+
+    <span class="k">def</span> <span class="nf">_rotateAboutZ</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xstring</span><span class="p">,</span> <span class="n">ystring</span><span class="p">,</span> <span class="n">zstring</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">thetaname</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        x X y = z.  rotate c.s. about z, +theta</span>
+<span class="sd">        all angles in degrees</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">thetaM</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="k">if</span> <span class="n">reverse</span><span class="p">:</span>
+            <span class="n">thetaM</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span>
+
+        <span class="n">x</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xstring</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ystring</span><span class="p">)</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">zstring</span><span class="p">)</span>
+        <span class="n">dx</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;d&#39;</span> <span class="o">+</span> <span class="n">xstring</span><span class="p">)</span>
+        <span class="n">dy</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;d&#39;</span> <span class="o">+</span> <span class="n">ystring</span><span class="p">)</span>
+        <span class="n">dz</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;d&#39;</span> <span class="o">+</span> <span class="n">zstring</span><span class="p">)</span>
+
+        <span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">theta</span> <span class="o">*</span> <span class="n">thetaM</span><span class="p">)</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+
+        <span class="n">xnew</span> <span class="o">=</span> <span class="n">x</span><span class="o">*</span><span class="n">c</span> <span class="o">+</span> <span class="n">y</span><span class="o">*</span><span class="n">s</span>
+        <span class="n">ynew</span> <span class="o">=</span> <span class="o">-</span><span class="n">x</span><span class="o">*</span><span class="n">s</span> <span class="o">+</span> <span class="n">y</span><span class="o">*</span><span class="n">c</span>
+        <span class="n">znew</span> <span class="o">=</span> <span class="n">z</span>
+
+        <span class="n">angles</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">dx</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;dx&#39;</span><span class="p">,</span> <span class="s">&#39;dy&#39;</span><span class="p">,</span> <span class="s">&#39;dz&#39;</span><span class="p">]:</span>
+                <span class="n">angles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+
+        <span class="n">dxnew</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">dxnew</span><span class="p">[</span><span class="s">&#39;dx&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dx</span><span class="p">[</span><span class="s">&#39;dx&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">c</span> <span class="o">+</span> <span class="n">dy</span><span class="p">[</span><span class="s">&#39;dx&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">s</span>
+        <span class="n">dxnew</span><span class="p">[</span><span class="s">&#39;dy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dx</span><span class="p">[</span><span class="s">&#39;dy&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">c</span> <span class="o">+</span> <span class="n">dy</span><span class="p">[</span><span class="s">&#39;dy&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">s</span>
+        <span class="n">dxnew</span><span class="p">[</span><span class="s">&#39;dz&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dx</span><span class="p">[</span><span class="s">&#39;dz&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">c</span> <span class="o">+</span> <span class="n">dy</span><span class="p">[</span><span class="s">&#39;dz&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">s</span>
+        <span class="n">dxnew</span><span class="p">[</span><span class="s">&#39;d&#39;</span> <span class="o">+</span> <span class="n">thetaname</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="o">*</span><span class="n">s</span> <span class="o">+</span> <span class="n">y</span><span class="o">*</span><span class="n">c</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">thetaM</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">dangle</span> <span class="ow">in</span> <span class="n">angles</span><span class="p">:</span>
+            <span class="n">dxnew</span><span class="p">[</span><span class="n">dangle</span><span class="p">]</span> <span class="o">=</span> <span class="n">dx</span><span class="p">[</span><span class="n">dangle</span><span class="p">]</span><span class="o">*</span><span class="n">c</span> <span class="o">+</span> <span class="n">dy</span><span class="p">[</span><span class="n">dangle</span><span class="p">]</span><span class="o">*</span><span class="n">s</span>
+
+        <span class="n">dynew</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">dynew</span><span class="p">[</span><span class="s">&#39;dx&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">dx</span><span class="p">[</span><span class="s">&#39;dx&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">s</span> <span class="o">+</span> <span class="n">dy</span><span class="p">[</span><span class="s">&#39;dx&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">c</span>
+        <span class="n">dynew</span><span class="p">[</span><span class="s">&#39;dy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">dx</span><span class="p">[</span><span class="s">&#39;dy&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">s</span> <span class="o">+</span> <span class="n">dy</span><span class="p">[</span><span class="s">&#39;dy&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">c</span>
+        <span class="n">dynew</span><span class="p">[</span><span class="s">&#39;dz&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">dx</span><span class="p">[</span><span class="s">&#39;dz&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">s</span> <span class="o">+</span> <span class="n">dy</span><span class="p">[</span><span class="s">&#39;dz&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">c</span>
+        <span class="n">dynew</span><span class="p">[</span><span class="s">&#39;d&#39;</span> <span class="o">+</span> <span class="n">thetaname</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="o">*</span><span class="n">c</span> <span class="o">-</span> <span class="n">y</span><span class="o">*</span><span class="n">s</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">thetaM</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">dangle</span> <span class="ow">in</span> <span class="n">angles</span><span class="p">:</span>
+            <span class="n">dynew</span><span class="p">[</span><span class="n">dangle</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">dx</span><span class="p">[</span><span class="n">dangle</span><span class="p">]</span><span class="o">*</span><span class="n">s</span> <span class="o">+</span> <span class="n">dy</span><span class="p">[</span><span class="n">dangle</span><span class="p">]</span><span class="o">*</span><span class="n">c</span>
+
+        <span class="n">dznew</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">dznew</span><span class="p">[</span><span class="s">&#39;dx&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dz</span><span class="p">[</span><span class="s">&#39;dx&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>  <span class="c"># multiply by ones just to get right size in case of float</span>
+        <span class="n">dznew</span><span class="p">[</span><span class="s">&#39;dy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dz</span><span class="p">[</span><span class="s">&#39;dy&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+        <span class="n">dznew</span><span class="p">[</span><span class="s">&#39;dz&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dz</span><span class="p">[</span><span class="s">&#39;dz&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+        <span class="n">dznew</span><span class="p">[</span><span class="s">&#39;d&#39;</span> <span class="o">+</span> <span class="n">thetaname</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">dangle</span> <span class="ow">in</span> <span class="n">angles</span><span class="p">:</span>
+            <span class="n">dznew</span><span class="p">[</span><span class="n">dangle</span><span class="p">]</span> <span class="o">=</span> <span class="n">dz</span><span class="p">[</span><span class="n">dangle</span><span class="p">]</span>
+
+
+        <span class="k">return</span> <span class="n">xnew</span><span class="p">,</span> <span class="n">ynew</span><span class="p">,</span> <span class="n">znew</span><span class="p">,</span> <span class="n">dxnew</span><span class="p">,</span> <span class="n">dynew</span><span class="p">,</span> <span class="n">dznew</span>
+
+
+
+
+
+<div class="viewcode-block" id="DirectionVector.windToInertial"><a class="viewcode-back" href="../../generated/commonse.csystem.DirectionVector.windToInertial.html#commonse.csystem.DirectionVector.windToInertial">[docs]</a>    <span class="k">def</span> <span class="nf">windToInertial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">beta</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Rotates from wind-aligned to inertial</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        beta : float (deg)</span>
+<span class="sd">            wind angle</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        vector : DirectionVector</span>
+<span class="sd">            a DirectionVector in the inertial coordinate system</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># xi, yi, zi = _rotateAboutZ(self.x, self.y, self.z, -beta)</span>
+        <span class="c"># return DirectionVector(xi, yi, zi)</span>
+
+        <span class="n">xw</span><span class="p">,</span> <span class="n">yw</span><span class="p">,</span> <span class="n">zw</span><span class="p">,</span> <span class="n">dxw</span><span class="p">,</span> <span class="n">dyw</span><span class="p">,</span> <span class="n">dzw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rotateAboutZ</span><span class="p">(</span><span class="s">&#39;x&#39;</span><span class="p">,</span> <span class="s">&#39;y&#39;</span><span class="p">,</span> <span class="s">&#39;z&#39;</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="s">&#39;beta&#39;</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">DirectionVector</span><span class="p">(</span><span class="n">xw</span><span class="p">,</span> <span class="n">yw</span><span class="p">,</span> <span class="n">zw</span><span class="p">,</span> <span class="n">dxw</span><span class="p">,</span> <span class="n">dyw</span><span class="p">,</span> <span class="n">dzw</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="DirectionVector.inertialToWind"><a class="viewcode-back" href="../../generated/commonse.csystem.DirectionVector.inertialToWind.html#commonse.csystem.DirectionVector.inertialToWind">[docs]</a>    <span class="k">def</span> <span class="nf">inertialToWind</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">beta</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Rotates from inertial to wind-aligned</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        beta : float (deg)</span>
+<span class="sd">            wind angle</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        vector : DirectionVector</span>
+<span class="sd">            a DirectionVector in the wind-aligned coordinate system</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># xw, yw, zw = _rotateAboutZ(self.x, self.y, self.z, beta)</span>
+        <span class="c"># return DirectionVector(xw, yw, zw)</span>
+
+        <span class="n">xw</span><span class="p">,</span> <span class="n">yw</span><span class="p">,</span> <span class="n">zw</span><span class="p">,</span> <span class="n">dxw</span><span class="p">,</span> <span class="n">dyw</span><span class="p">,</span> <span class="n">dzw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rotateAboutZ</span><span class="p">(</span><span class="s">&#39;x&#39;</span><span class="p">,</span> <span class="s">&#39;y&#39;</span><span class="p">,</span> <span class="s">&#39;z&#39;</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="s">&#39;beta&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">DirectionVector</span><span class="p">(</span><span class="n">xw</span><span class="p">,</span> <span class="n">yw</span><span class="p">,</span> <span class="n">zw</span><span class="p">,</span> <span class="n">dxw</span><span class="p">,</span> <span class="n">dyw</span><span class="p">,</span> <span class="n">dzw</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="DirectionVector.yawToWind"><a class="viewcode-back" href="../../generated/commonse.csystem.DirectionVector.yawToWind.html#commonse.csystem.DirectionVector.yawToWind">[docs]</a>    <span class="k">def</span> <span class="nf">yawToWind</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Psi</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Rotates from yaw-aligned to wind-aligned</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        Psi : float (deg)</span>
+<span class="sd">            yaw angle</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        vector : DirectionVector</span>
+<span class="sd">            a DirectionVector in the wind-aligned coordinate system</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># xw, yw, zw = _rotateAboutZ(self.x, self.y, self.z, -Psi)</span>
+        <span class="c"># return DirectionVector(xw, yw, zw)</span>
+
+        <span class="n">xw</span><span class="p">,</span> <span class="n">yw</span><span class="p">,</span> <span class="n">zw</span><span class="p">,</span> <span class="n">dxw</span><span class="p">,</span> <span class="n">dyw</span><span class="p">,</span> <span class="n">dzw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rotateAboutZ</span><span class="p">(</span><span class="s">&#39;x&#39;</span><span class="p">,</span> <span class="s">&#39;y&#39;</span><span class="p">,</span> <span class="s">&#39;z&#39;</span><span class="p">,</span> <span class="n">Psi</span><span class="p">,</span> <span class="s">&#39;yaw&#39;</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">DirectionVector</span><span class="p">(</span><span class="n">xw</span><span class="p">,</span> <span class="n">yw</span><span class="p">,</span> <span class="n">zw</span><span class="p">,</span> <span class="n">dxw</span><span class="p">,</span> <span class="n">dyw</span><span class="p">,</span> <span class="n">dzw</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="DirectionVector.windToYaw"><a class="viewcode-back" href="../../generated/commonse.csystem.DirectionVector.windToYaw.html#commonse.csystem.DirectionVector.windToYaw">[docs]</a>    <span class="k">def</span> <span class="nf">windToYaw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Psi</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Rotates from wind-aligned to yaw-aligned</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        Psi : float (deg)</span>
+<span class="sd">            yaw angle</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        vector : DirectionVector</span>
+<span class="sd">            a DirectionVector in the yaw-aligned coordinate system</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># xy, yy, zy = _rotateAboutZ(self.x, self.y, self.z, Psi)</span>
+        <span class="c"># return DirectionVector(xy, yy, zy)</span>
+
+        <span class="n">xy</span><span class="p">,</span> <span class="n">yy</span><span class="p">,</span> <span class="n">zy</span><span class="p">,</span> <span class="n">dxy</span><span class="p">,</span> <span class="n">dyy</span><span class="p">,</span> <span class="n">dzy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rotateAboutZ</span><span class="p">(</span><span class="s">&#39;x&#39;</span><span class="p">,</span> <span class="s">&#39;y&#39;</span><span class="p">,</span> <span class="s">&#39;z&#39;</span><span class="p">,</span> <span class="n">Psi</span><span class="p">,</span> <span class="s">&#39;yaw&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">DirectionVector</span><span class="p">(</span><span class="n">xy</span><span class="p">,</span> <span class="n">yy</span><span class="p">,</span> <span class="n">zy</span><span class="p">,</span> <span class="n">dxy</span><span class="p">,</span> <span class="n">dyy</span><span class="p">,</span> <span class="n">dzy</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="DirectionVector.hubToYaw"><a class="viewcode-back" href="../../generated/commonse.csystem.DirectionVector.hubToYaw.html#commonse.csystem.DirectionVector.hubToYaw">[docs]</a>    <span class="k">def</span> <span class="nf">hubToYaw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Theta</span><span class="p">,</span> <span class="n">derivatives</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Rotates from hub-aligned to yaw-aligned</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        Theta : float (deg)</span>
+<span class="sd">            tilt angle</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        vector : DirectionVector</span>
+<span class="sd">            a DirectionVector in the yaw-aligned coordinate system</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># zy, xy, yy = _rotateAboutZ(self.z, self.x, self.y, -Theta)</span>
+        <span class="c"># return DirectionVector(xy, yy, zy, deriv)</span>
+
+        <span class="n">zy</span><span class="p">,</span> <span class="n">xy</span><span class="p">,</span> <span class="n">yy</span><span class="p">,</span> <span class="n">dzy</span><span class="p">,</span> <span class="n">dxy</span><span class="p">,</span> <span class="n">dyy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rotateAboutZ</span><span class="p">(</span><span class="s">&#39;z&#39;</span><span class="p">,</span> <span class="s">&#39;x&#39;</span><span class="p">,</span> <span class="s">&#39;y&#39;</span><span class="p">,</span> <span class="n">Theta</span><span class="p">,</span> <span class="s">&#39;tilt&#39;</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">DirectionVector</span><span class="p">(</span><span class="n">xy</span><span class="p">,</span> <span class="n">yy</span><span class="p">,</span> <span class="n">zy</span><span class="p">,</span> <span class="n">dxy</span><span class="p">,</span> <span class="n">dyy</span><span class="p">,</span> <span class="n">dzy</span><span class="p">)</span>
+
+
+</div>
+<div class="viewcode-block" id="DirectionVector.yawToHub"><a class="viewcode-back" href="../../generated/commonse.csystem.DirectionVector.yawToHub.html#commonse.csystem.DirectionVector.yawToHub">[docs]</a>    <span class="k">def</span> <span class="nf">yawToHub</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Theta</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Rotates from yaw-aligned to hub-aligned</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        Theta : float (deg)</span>
+<span class="sd">            tilt angle</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        vector : DirectionVector</span>
+<span class="sd">            a DirectionVector in the hub-aligned coordinate system</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># zh, xh, yh = _rotateAboutZ(self.z, self.x, self.y, Theta)</span>
+        <span class="c"># return DirectionVector(xh, yh, zh)</span>
+
+        <span class="n">zh</span><span class="p">,</span> <span class="n">xh</span><span class="p">,</span> <span class="n">yh</span><span class="p">,</span> <span class="n">dzh</span><span class="p">,</span> <span class="n">dxh</span><span class="p">,</span> <span class="n">dyh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rotateAboutZ</span><span class="p">(</span><span class="s">&#39;z&#39;</span><span class="p">,</span> <span class="s">&#39;x&#39;</span><span class="p">,</span> <span class="s">&#39;y&#39;</span><span class="p">,</span> <span class="n">Theta</span><span class="p">,</span> <span class="s">&#39;tilt&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">DirectionVector</span><span class="p">(</span><span class="n">xh</span><span class="p">,</span> <span class="n">yh</span><span class="p">,</span> <span class="n">zh</span><span class="p">,</span> <span class="n">dxh</span><span class="p">,</span> <span class="n">dyh</span><span class="p">,</span> <span class="n">dzh</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="DirectionVector.hubToAzimuth"><a class="viewcode-back" href="../../generated/commonse.csystem.DirectionVector.hubToAzimuth.html#commonse.csystem.DirectionVector.hubToAzimuth">[docs]</a>    <span class="k">def</span> <span class="nf">hubToAzimuth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Lambda</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Rotates from hub-aligned to azimuth-aligned</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        Lambda : float or ndarray (deg)</span>
+<span class="sd">            azimuth angle</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        vector : DirectionVector</span>
+<span class="sd">            a DirectionVector in the azimuth-aligned coordinate system</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># yz, zz, xz = _rotateAboutZ(self.y, self.z, self.x, Lambda)</span>
+        <span class="c"># return DirectionVector(xz, yz, zz)</span>
+
+        <span class="n">yz</span><span class="p">,</span> <span class="n">zz</span><span class="p">,</span> <span class="n">xz</span><span class="p">,</span> <span class="n">dyz</span><span class="p">,</span> <span class="n">dzz</span><span class="p">,</span> <span class="n">dxz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rotateAboutZ</span><span class="p">(</span><span class="s">&#39;y&#39;</span><span class="p">,</span> <span class="s">&#39;z&#39;</span><span class="p">,</span> <span class="s">&#39;x&#39;</span><span class="p">,</span> <span class="n">Lambda</span><span class="p">,</span> <span class="s">&#39;azimuth&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">DirectionVector</span><span class="p">(</span><span class="n">xz</span><span class="p">,</span> <span class="n">yz</span><span class="p">,</span> <span class="n">zz</span><span class="p">,</span> <span class="n">dxz</span><span class="p">,</span> <span class="n">dyz</span><span class="p">,</span> <span class="n">dzz</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="DirectionVector.azimuthToHub"><a class="viewcode-back" href="../../generated/commonse.csystem.DirectionVector.azimuthToHub.html#commonse.csystem.DirectionVector.azimuthToHub">[docs]</a>    <span class="k">def</span> <span class="nf">azimuthToHub</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Lambda</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Rotates from azimuth-aligned to hub-aligned</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        Lambda : float or ndarray (deg)</span>
+<span class="sd">            azimuth angle</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        vector : DirectionVector</span>
+<span class="sd">            a DirectionVector in the hub-aligned coordinate system</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># yh, zh, xh = _rotateAboutZ(self.y, self.z, self.x, -Lambda)</span>
+        <span class="c"># return DirectionVector(xh, yh, zh)</span>
+
+        <span class="n">yh</span><span class="p">,</span> <span class="n">zh</span><span class="p">,</span> <span class="n">xh</span><span class="p">,</span> <span class="n">dyh</span><span class="p">,</span> <span class="n">dzh</span><span class="p">,</span> <span class="n">dxh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rotateAboutZ</span><span class="p">(</span><span class="s">&#39;y&#39;</span><span class="p">,</span> <span class="s">&#39;z&#39;</span><span class="p">,</span> <span class="s">&#39;x&#39;</span><span class="p">,</span> <span class="n">Lambda</span><span class="p">,</span> <span class="s">&#39;azimuth&#39;</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">DirectionVector</span><span class="p">(</span><span class="n">xh</span><span class="p">,</span> <span class="n">yh</span><span class="p">,</span> <span class="n">zh</span><span class="p">,</span> <span class="n">dxh</span><span class="p">,</span> <span class="n">dyh</span><span class="p">,</span> <span class="n">dzh</span><span class="p">)</span>
+
+
+</div>
+<div class="viewcode-block" id="DirectionVector.azimuthToBlade"><a class="viewcode-back" href="../../generated/commonse.csystem.DirectionVector.azimuthToBlade.html#commonse.csystem.DirectionVector.azimuthToBlade">[docs]</a>    <span class="k">def</span> <span class="nf">azimuthToBlade</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Phi</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Rotates from azimuth-aligned to blade-aligned</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        Phi : float (deg)</span>
+<span class="sd">            precone angle</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        vector : DirectionVector</span>
+<span class="sd">            a DirectionVector in the blade-aligned coordinate system</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+
+        <span class="c"># zb, xb, yb = _rotateAboutZ(self.z, self.x, self.y, -Phi)</span>
+        <span class="c"># return DirectionVector(xb, yb, zb)</span>
+
+        <span class="n">zb</span><span class="p">,</span> <span class="n">xb</span><span class="p">,</span> <span class="n">yb</span><span class="p">,</span> <span class="n">dzb</span><span class="p">,</span> <span class="n">dxb</span><span class="p">,</span> <span class="n">dyb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rotateAboutZ</span><span class="p">(</span><span class="s">&#39;z&#39;</span><span class="p">,</span> <span class="s">&#39;x&#39;</span><span class="p">,</span> <span class="s">&#39;y&#39;</span><span class="p">,</span> <span class="n">Phi</span><span class="p">,</span> <span class="s">&#39;precone&#39;</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">DirectionVector</span><span class="p">(</span><span class="n">xb</span><span class="p">,</span> <span class="n">yb</span><span class="p">,</span> <span class="n">zb</span><span class="p">,</span> <span class="n">dxb</span><span class="p">,</span> <span class="n">dyb</span><span class="p">,</span> <span class="n">dzb</span><span class="p">)</span>
+
+
+</div>
+<div class="viewcode-block" id="DirectionVector.bladeToAzimuth"><a class="viewcode-back" href="../../generated/commonse.csystem.DirectionVector.bladeToAzimuth.html#commonse.csystem.DirectionVector.bladeToAzimuth">[docs]</a>    <span class="k">def</span> <span class="nf">bladeToAzimuth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Phi</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Rotates from blade-aligned to azimuth-aligned</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        Phi : float (deg)</span>
+<span class="sd">            precone angle</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        vector : DirectionVector</span>
+<span class="sd">            a DirectionVector in the azimuth-aligned coordinate system</span>
+
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c"># za, xa, ya = _rotateAboutZ(self.z, self.x, self.y, Phi)</span>
+        <span class="c"># return DirectionVector(xa, ya, za)</span>
+
+        <span class="n">za</span><span class="p">,</span> <span class="n">xa</span><span class="p">,</span> <span class="n">ya</span><span class="p">,</span> <span class="n">dza</span><span class="p">,</span> <span class="n">dxa</span><span class="p">,</span> <span class="n">dya</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rotateAboutZ</span><span class="p">(</span><span class="s">&#39;z&#39;</span><span class="p">,</span> <span class="s">&#39;x&#39;</span><span class="p">,</span> <span class="s">&#39;y&#39;</span><span class="p">,</span> <span class="n">Phi</span><span class="p">,</span> <span class="s">&#39;precone&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">DirectionVector</span><span class="p">(</span><span class="n">xa</span><span class="p">,</span> <span class="n">ya</span><span class="p">,</span> <span class="n">za</span><span class="p">,</span> <span class="n">dxa</span><span class="p">,</span> <span class="n">dya</span><span class="p">,</span> <span class="n">dza</span><span class="p">)</span>
+
+
+</div>
+<div class="viewcode-block" id="DirectionVector.airfoilToBlade"><a class="viewcode-back" href="../../generated/commonse.csystem.DirectionVector.airfoilToBlade.html#commonse.csystem.DirectionVector.airfoilToBlade">[docs]</a>    <span class="k">def</span> <span class="nf">airfoilToBlade</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">theta</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Rotates from airfoil-aligned to blade-aligned</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        theta : float (deg)</span>
+<span class="sd">            twist angle</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        vector : DirectionVector</span>
+<span class="sd">            a DirectionVector in the blade-aligned coordinate system</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># xb, yb, zb = _rotateAboutZ(self.x, self.y, self.z, theta)</span>
+        <span class="c"># return DirectionVector(xb, yb, zb)</span>
+
+        <span class="n">xb</span><span class="p">,</span> <span class="n">yb</span><span class="p">,</span> <span class="n">zb</span><span class="p">,</span> <span class="n">dxb</span><span class="p">,</span> <span class="n">dyb</span><span class="p">,</span> <span class="n">dzb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rotateAboutZ</span><span class="p">(</span><span class="s">&#39;x&#39;</span><span class="p">,</span> <span class="s">&#39;y&#39;</span><span class="p">,</span> <span class="s">&#39;z&#39;</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="s">&#39;theta&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">DirectionVector</span><span class="p">(</span><span class="n">xb</span><span class="p">,</span> <span class="n">yb</span><span class="p">,</span> <span class="n">zb</span><span class="p">,</span> <span class="n">dxb</span><span class="p">,</span> <span class="n">dyb</span><span class="p">,</span> <span class="n">dzb</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="DirectionVector.bladeToAirfoil"><a class="viewcode-back" href="../../generated/commonse.csystem.DirectionVector.bladeToAirfoil.html#commonse.csystem.DirectionVector.bladeToAirfoil">[docs]</a>    <span class="k">def</span> <span class="nf">bladeToAirfoil</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">theta</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Rotates from blade-aligned to airfoil-aligned</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        theta : float (deg)</span>
+<span class="sd">            twist angle</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        vector : DirectionVector</span>
+<span class="sd">            a DirectionVector in the airfoil-aligned coordinate system</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c"># xa, ya, za = _rotateAboutZ(self.x, self.y, self.z, -theta)</span>
+        <span class="c"># return DirectionVector(xa, ya, za)</span>
+
+        <span class="n">xa</span><span class="p">,</span> <span class="n">ya</span><span class="p">,</span> <span class="n">za</span><span class="p">,</span> <span class="n">dxa</span><span class="p">,</span> <span class="n">dya</span><span class="p">,</span> <span class="n">dza</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rotateAboutZ</span><span class="p">(</span><span class="s">&#39;x&#39;</span><span class="p">,</span> <span class="s">&#39;y&#39;</span><span class="p">,</span> <span class="s">&#39;z&#39;</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="s">&#39;theta&#39;</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">DirectionVector</span><span class="p">(</span><span class="n">xa</span><span class="p">,</span> <span class="n">ya</span><span class="p">,</span> <span class="n">za</span><span class="p">,</span> <span class="n">dxa</span><span class="p">,</span> <span class="n">dya</span><span class="p">,</span> <span class="n">dza</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="DirectionVector.airfoilToProfile"><a class="viewcode-back" href="../../generated/commonse.csystem.DirectionVector.airfoilToProfile.html#commonse.csystem.DirectionVector.airfoilToProfile">[docs]</a>    <span class="k">def</span> <span class="nf">airfoilToProfile</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Rotates from airfoil-aligned to profile</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        vector : DirectionVector</span>
+<span class="sd">            a DirectionVector in the profile coordinate system</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c"># return DirectionVector(self.y, self.x, self.z)</span>
+
+        <span class="k">return</span> <span class="n">DirectionVector</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dz</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="DirectionVector.profileToAirfoil"><a class="viewcode-back" href="../../generated/commonse.csystem.DirectionVector.profileToAirfoil.html#commonse.csystem.DirectionVector.profileToAirfoil">[docs]</a>    <span class="k">def</span> <span class="nf">profileToAirfoil</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Rotates from profile to airfoil-aligned</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        vector : DirectionVector</span>
+<span class="sd">            a DirectionVector in the airfoil-aligned coordinate system</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c"># return DirectionVector(self.y, self.x, self.z)</span>
+
+        <span class="k">return</span> <span class="n">DirectionVector</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dz</span><span class="p">)</span>
+
+
+
+</div>
+    <span class="k">def</span> <span class="nf">cross</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;cross product between two DirectionVectors</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        other : DirectionVector</span>
+<span class="sd">            other vector to cross with</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        vector : DirectionVector</span>
+<span class="sd">            vector = self X other</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">v1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">])</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+        <span class="n">v2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">other</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">z</span><span class="p">])</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">DirectionVector</span><span class="p">(</span><span class="n">v</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">v</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">v</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">DirectionVector</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">v</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+
+
+    <span class="k">def</span> <span class="nf">cross_deriv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">namea</span><span class="o">=</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="n">nameb</span><span class="o">=</span><span class="s">&#39;b&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;defined only for floats for now&quot;&quot;&quot;</span>
+
+        <span class="c"># c = a X b</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="bp">self</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">other</span>
+
+        <span class="n">dx</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">dx</span><span class="p">[</span><span class="n">namea</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">b</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="o">-</span><span class="n">b</span><span class="o">.</span><span class="n">y</span><span class="p">])</span>
+        <span class="n">dx</span><span class="p">[</span><span class="n">nameb</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="n">a</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="n">a</span><span class="o">.</span><span class="n">y</span><span class="p">])</span>
+
+        <span class="n">dy</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">dy</span><span class="p">[</span><span class="n">namea</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="n">b</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">b</span><span class="o">.</span><span class="n">x</span><span class="p">])</span>
+        <span class="n">dy</span><span class="p">[</span><span class="n">nameb</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">a</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="n">a</span><span class="o">.</span><span class="n">x</span><span class="p">])</span>
+
+        <span class="n">dz</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">dz</span><span class="p">[</span><span class="n">namea</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">b</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="o">-</span><span class="n">b</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span>
+        <span class="n">dz</span><span class="p">[</span><span class="n">nameb</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="n">a</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">a</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">,</span> <span class="n">dz</span>
+
+
+
+    <span class="k">def</span> <span class="nf">cross_deriv_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">namea</span><span class="o">=</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="n">nameb</span><span class="o">=</span><span class="s">&#39;b&#39;</span><span class="p">):</span>
+
+        <span class="c"># c = a X b</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="bp">self</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">other</span>
+
+        <span class="n">dx</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">dx</span><span class="p">[</span><span class="s">&#39;d&#39;</span> <span class="o">+</span> <span class="n">namea</span> <span class="o">+</span> <span class="s">&#39;x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">dx</span><span class="p">[</span><span class="s">&#39;d&#39;</span> <span class="o">+</span> <span class="n">namea</span> <span class="o">+</span> <span class="s">&#39;y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">b</span><span class="o">.</span><span class="n">z</span>
+        <span class="n">dx</span><span class="p">[</span><span class="s">&#39;d&#39;</span> <span class="o">+</span> <span class="n">namea</span> <span class="o">+</span> <span class="s">&#39;z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">b</span><span class="o">.</span><span class="n">y</span>
+        <span class="n">dx</span><span class="p">[</span><span class="s">&#39;d&#39;</span> <span class="o">+</span> <span class="n">nameb</span> <span class="o">+</span> <span class="s">&#39;x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">dx</span><span class="p">[</span><span class="s">&#39;d&#39;</span> <span class="o">+</span> <span class="n">nameb</span> <span class="o">+</span> <span class="s">&#39;y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">a</span><span class="o">.</span><span class="n">z</span>
+        <span class="n">dx</span><span class="p">[</span><span class="s">&#39;d&#39;</span> <span class="o">+</span> <span class="n">nameb</span> <span class="o">+</span> <span class="s">&#39;z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">y</span>
+
+        <span class="n">dy</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">dy</span><span class="p">[</span><span class="s">&#39;d&#39;</span> <span class="o">+</span> <span class="n">namea</span> <span class="o">+</span> <span class="s">&#39;x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">b</span><span class="o">.</span><span class="n">z</span>
+        <span class="n">dy</span><span class="p">[</span><span class="s">&#39;d&#39;</span> <span class="o">+</span> <span class="n">namea</span> <span class="o">+</span> <span class="s">&#39;y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+        <span class="n">dy</span><span class="p">[</span><span class="s">&#39;d&#39;</span> <span class="o">+</span> <span class="n">namea</span> <span class="o">+</span> <span class="s">&#39;z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">b</span><span class="o">.</span><span class="n">x</span>
+        <span class="n">dy</span><span class="p">[</span><span class="s">&#39;d&#39;</span> <span class="o">+</span> <span class="n">nameb</span> <span class="o">+</span> <span class="s">&#39;x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">z</span>
+        <span class="n">dy</span><span class="p">[</span><span class="s">&#39;d&#39;</span> <span class="o">+</span> <span class="n">nameb</span> <span class="o">+</span> <span class="s">&#39;y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+        <span class="n">dy</span><span class="p">[</span><span class="s">&#39;d&#39;</span> <span class="o">+</span> <span class="n">nameb</span> <span class="o">+</span> <span class="s">&#39;z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">a</span><span class="o">.</span><span class="n">x</span>
+
+        <span class="n">dz</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">dz</span><span class="p">[</span><span class="s">&#39;d&#39;</span> <span class="o">+</span> <span class="n">namea</span> <span class="o">+</span> <span class="s">&#39;x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">b</span><span class="o">.</span><span class="n">y</span>
+        <span class="n">dz</span><span class="p">[</span><span class="s">&#39;d&#39;</span> <span class="o">+</span> <span class="n">namea</span> <span class="o">+</span> <span class="s">&#39;y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">b</span><span class="o">.</span><span class="n">x</span>
+        <span class="n">dz</span><span class="p">[</span><span class="s">&#39;d&#39;</span> <span class="o">+</span> <span class="n">namea</span> <span class="o">+</span> <span class="s">&#39;z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+        <span class="n">dz</span><span class="p">[</span><span class="s">&#39;d&#39;</span> <span class="o">+</span> <span class="n">nameb</span> <span class="o">+</span> <span class="s">&#39;x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">a</span><span class="o">.</span><span class="n">y</span>
+        <span class="n">dz</span><span class="p">[</span><span class="s">&#39;d&#39;</span> <span class="o">+</span> <span class="n">nameb</span> <span class="o">+</span> <span class="s">&#39;y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">x</span>
+        <span class="n">dz</span><span class="p">[</span><span class="s">&#39;d&#39;</span> <span class="o">+</span> <span class="n">nameb</span> <span class="o">+</span> <span class="s">&#39;z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">,</span> <span class="n">dz</span>
+
+
+
+
+    <span class="k">def</span> <span class="nf">__neg__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;negate direction vector&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">DirectionVector</span><span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;add two DirectionVector objects (v1 = v2 + v3)&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">DirectionVector</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">DirectionVector</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">other</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">+</span> <span class="n">other</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">+</span> <span class="n">other</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">DirectionVector</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">other</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">+</span> <span class="n">other</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">+</span> <span class="n">other</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">__sub__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;subtract DirectionVector objects (v1 = v2 - v3)&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">DirectionVector</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">DirectionVector</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">other</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">other</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">-</span> <span class="n">other</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">DirectionVector</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">other</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">other</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">-</span> <span class="n">other</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">__iadd__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;add DirectionVector object to self (v1 += v2)&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">DirectionVector</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">+=</span> <span class="n">other</span><span class="o">.</span><span class="n">x</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">+=</span> <span class="n">other</span><span class="o">.</span><span class="n">y</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">+=</span> <span class="n">other</span><span class="o">.</span><span class="n">z</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">+=</span> <span class="n">other</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">+=</span> <span class="n">other</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">+=</span> <span class="n">other</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
+
+
+    <span class="k">def</span> <span class="nf">__isub__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;subract DirectionVector object from self (v1 -= v2)&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">DirectionVector</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">-=</span> <span class="n">other</span><span class="o">.</span><span class="n">x</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">-=</span> <span class="n">other</span><span class="o">.</span><span class="n">y</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">-=</span> <span class="n">other</span><span class="o">.</span><span class="n">z</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">-=</span> <span class="n">other</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">-=</span> <span class="n">other</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">-=</span> <span class="n">other</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
+
+
+    <span class="k">def</span> <span class="nf">__mul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;multiply vector times a scalar or element by element muiltiply times another vector (v1 = alpha * v2 or v1 = v2 * v3)&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">DirectionVector</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">DirectionVector</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">other</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">*</span> <span class="n">other</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">*</span> <span class="n">other</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">DirectionVector</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">other</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">*</span> <span class="n">other</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">*</span> <span class="n">other</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">__div__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;divide vector by a scalar or element by element division with another vector (v1 = v2 / alpha or v1 = v2 / v3)&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">DirectionVector</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">DirectionVector</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">/</span> <span class="n">other</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">/</span> <span class="n">other</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">/</span> <span class="n">other</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">DirectionVector</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">other</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">other</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">other</span><span class="p">))</span>
+
+
+    <span class="k">def</span> <span class="nf">__imul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;multiply self times a scalar or element by element muiltiply times another vector (v1 *= alpha or v1 *= v2)&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">DirectionVector</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">*=</span> <span class="n">other</span><span class="o">.</span><span class="n">x</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">*=</span> <span class="n">other</span><span class="o">.</span><span class="n">y</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">*=</span> <span class="n">other</span><span class="o">.</span><span class="n">z</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">*=</span> <span class="n">other</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">*=</span> <span class="n">other</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">*=</span> <span class="n">other</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+
+    <span class="k">def</span> <span class="nf">__idiv__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;divide self by a scalar or element by element division with another vector (v1 /= alpha or v1 /= v2)&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">DirectionVector</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">/=</span> <span class="n">other</span><span class="o">.</span><span class="n">x</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">/=</span> <span class="n">other</span><span class="o">.</span><span class="n">y</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">/=</span> <span class="n">other</span><span class="o">.</span><span class="n">z</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">/=</span> <span class="nb">float</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">/=</span> <span class="nb">float</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">/=</span> <span class="nb">float</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;print string representation&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="s">&#39;{0}, {1}, {2}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+
+
+
+
+
+<span class="c"># class Force(DirectionVector):</span>
+
+<span class="c">#     def __init__(self, Fx, Fy, Fz):</span>
+<span class="c">#         &quot;&quot;&quot;Force vector (or any vector that depends only on orientation).</span>
+
+<span class="c">#         Parameters</span>
+<span class="c">#         ----------</span>
+<span class="c">#         Fx : float or ndarray</span>
+<span class="c">#             force in x-direction</span>
+<span class="c">#         Fy : float or ndarray</span>
+<span class="c">#             force in y-direction</span>
+<span class="c">#         Fz : float or ndarray</span>
+<span class="c">#             force in z-direction</span>
+
+<span class="c">#         &quot;&quot;&quot;</span>
+<span class="c">#         super(DirectionVector, self).__init__(Fx, Fy, Fz)</span>
+
+
+
+
+<span class="c"># def _position(r):</span>
+<span class="c">#     return Position(r.x, r.y, r.z)</span>
+
+
+<span class="c"># class Position(DirectionVector):</span>
+
+<span class="c">#     def __init__(self, x, y, z):</span>
+<span class="c">#         &quot;&quot;&quot;Position vector.</span>
+
+<span class="c">#         Parameters</span>
+<span class="c">#         ----------</span>
+<span class="c">#         x : float or ndarray</span>
+<span class="c">#             x-location of position(s)</span>
+<span class="c">#         y : float or ndarray</span>
+<span class="c">#             y-location of position(s)</span>
+<span class="c">#         z : float or ndarray</span>
+<span class="c">#             z-location of position(s)</span>
+
+<span class="c">#         &quot;&quot;&quot;</span>
+<span class="c">#         super(Position, self).__init__(x, y, z)</span>
+
+
+<span class="c">#     def __translate(self, x, y, z):</span>
+<span class="c">#         return self - DirectionVector(x, y, z)</span>
+
+
+<span class="c">#     def yawToWind(self, Psi, height):</span>
+<span class="c">#         r = self.__translate(0.0, 0.0, -height)</span>
+<span class="c">#         rnew = r.yawToWind(Psi)</span>
+
+<span class="c">#         return _position(rnew)</span>
+
+
+<span class="c">#     def windToYaw(self, Psi, height):</span>
+<span class="c">#         r = self.__translate(0.0, 0.0, height)</span>
+<span class="c">#         rnew = r.windToYaw(Psi)</span>
+
+<span class="c">#         return _position(rnew)</span>
+
+
+<span class="c">#     def hubToYaw(self, Theta, length):</span>
+<span class="c">#         r = self.__translate(length, 0.0, 0.0)</span>
+<span class="c">#         rnew = r.hubToYaw(Theta)</span>
+
+<span class="c">#         return _position(rnew)</span>
+
+
+<span class="c">#     def yawToHub(self, Theta, length):</span>
+<span class="c">#         r = DirectionVector(self.x, self.y, self.z).yawToHub(Theta)</span>
+<span class="c">#         rnew = r.__translate(-length, 0.0, 0.0)</span>
+
+<span class="c">#         return _position(rnew)</span>
+
+
+<span class="c">#     def hubToAzimuth(self, Lambda, dy, dz):</span>
+<span class="c">#         r = self.__translate(0.0, dy, dz)</span>
+<span class="c">#         rnew = r.hubToAzimuth(Lambda)</span>
+
+<span class="c">#         return _position(rnew)</span>
+
+<span class="c">#     def azimuthToHub(self, Lambda, dy, dz):</span>
+<span class="c">#         r = DirectionVector(self.x, self.y, self.z).azimuthToHub(Lambda)</span>
+<span class="c">#         rnew = _position(r).__translate(0.0, -dy, -dz)</span>
+
+<span class="c">#         return _position(rnew)</span>
+
+
+<span class="c">#     def bladeToAzimuth(self, Phi):</span>
+<span class="c">#         r = DirectionVector(self.x, self.y, self.z).bladeToAzimuth(Phi)</span>
+<span class="c">#         return _position(r)</span>
+
+
+<span class="c">#     def profileToAirfoil(self, d):</span>
+<span class="c">#         r = self.__translate(d, 0.0, 0.0)</span>
+<span class="c">#         rnew = r.profileToAirfoil()</span>
+
+<span class="c">#         return _position(rnew)</span>
+
+
+<span class="c">#     def airfoilToProfile(self, d):</span>
+<span class="c">#         r = self.airfoilToProfile()</span>
+<span class="c">#         rnew = r.__translate(-d, 0.0, 0.0)</span>
+
+<span class="c">#         return _position(rnew)</span>
+
+
+
+<span class="c"># class Velocity(DirectionVector):</span>
+
+<span class="c">#     def __init__(self, Vx, Vy, Vz):</span>
+<span class="c">#         &quot;&quot;&quot;Velocity vector.</span>
+
+<span class="c">#         Parameters</span>
+<span class="c">#         ----------</span>
+<span class="c">#         Vx : float or ndarray</span>
+<span class="c">#             velocity in x-direction</span>
+<span class="c">#         Vy : float or ndarray</span>
+<span class="c">#             velocity in y-direction</span>
+<span class="c">#         Vz : float or ndarray</span>
+<span class="c">#             velocity in z-direction</span>
+
+<span class="c">#         &quot;&quot;&quot;</span>
+<span class="c">#         super(DirectionVector, self).__init__(Vx, Vy, Vz)</span>
+
+
+<span class="c">#     def hubToAzimuth(self, Lambda, Omega, yh, zh):</span>
+
+<span class="c">#         yh = np.array(yh)</span>
+<span class="c">#         zh = np.array(zh)</span>
+<span class="c">#         r = np.sqrt(yh**2 + zh**2)</span>
+<span class="c">#         beta = np.arctan2(zh, -yh)</span>
+<span class="c">#         Vy = Omega*r*np.sin(beta)</span>
+<span class="c">#         Vz = Omega*r*np.cos(beta)</span>
+
+<span class="c">#         V = self + Velocity(0, Vy, Vz)</span>
+<span class="c">#         Vnew = DirectionVector(V.x, V.y, V.z).hubToAzimuth(Lambda)</span>
+
+<span class="c">#         return Velocity(Vnew.x, Vnew.y, Vnew.z)</span>
+
+
+<span class="c">#     def azimuthToHub(self, Lambda, Omega, yh, zh):</span>
+
+<span class="c">#         yh = np.array(yh)</span>
+<span class="c">#         zh = np.array(zh)</span>
+<span class="c">#         r = np.sqrt(yh**2 + zh**2)</span>
+<span class="c">#         beta = np.arctan2(zh, -yh)</span>
+<span class="c">#         Vy = Omega*r*np.sin(beta)</span>
+<span class="c">#         Vz = Omega*r*np.cos(beta)</span>
+
+<span class="c">#         V = DirectionVector(self.x, self.y, self.z).azimuthToHub(Lambda)</span>
+<span class="c">#         Vnew = V - Velocity(0, Vy, Vz)</span>
+
+<span class="c">#         return Velocity(Vnew.x, Vnew.y, Vnew.z)</span>
+
+
+
+
+
+<span class="c"># def _FM(f, m):</span>
+<span class="c">#     return ForceMoment(f.x, f.y, f.z, m.x, m.y, m.z)</span>
+
+
+<span class="c"># class ForceMoment:</span>
+
+<span class="c">#     def __init__(self, Fx, Fy, Fz, Mx, My, Mz):</span>
+<span class="c">#         &quot;&quot;&quot;Force vector and a corresponding moment vector.</span>
+
+<span class="c">#         Parameters</span>
+<span class="c">#         ----------</span>
+<span class="c">#         Fx : float or ndarray</span>
+<span class="c">#             x-direction of force(s)</span>
+<span class="c">#         Fy : float or ndarray</span>
+<span class="c">#             y-direction of force(s)</span>
+<span class="c">#         Fz : float or ndarray</span>
+<span class="c">#             z-direction of force(s)</span>
+<span class="c">#         Mx : float or ndarray</span>
+<span class="c">#             x-direction of moment(s)</span>
+<span class="c">#         My : float or ndarray</span>
+<span class="c">#             y-direction of moment(s)</span>
+<span class="c">#         Mz : float or ndarray</span>
+<span class="c">#             z-direction of moment(s)</span>
+
+<span class="c">#         &quot;&quot;&quot;</span>
+
+<span class="c">#         self.F = DirectionVector(Fx, Fy, Fz)</span>
+<span class="c">#         self.M = DirectionVector(Mx, My, Mz)</span>
+
+
+<span class="c">#     def __translate(self, x, y, z):</span>
+<span class="c">#         r = DirectionVector(x, y, z)</span>
+<span class="c">#         M = self.M - r.cross(self.F)</span>
+
+<span class="c">#         return self.F, M</span>
+
+
+<span class="c">#     def windToInertial(self, beta):</span>
+
+<span class="c">#         Fnew = self.F.windToInertial(beta)</span>
+<span class="c">#         Mnew = self.M.windToInertial(beta)</span>
+
+<span class="c">#         return _FM(Fnew, Mnew)</span>
+
+
+<span class="c">#     def inertialToWind(self, beta):</span>
+<span class="c">#         &quot;&quot;&quot;docstring&quot;&quot;&quot;</span>
+
+<span class="c">#         Fnew = self.F.inertialToWind(beta)</span>
+<span class="c">#         Mnew = self.M.inertialToWind(beta)</span>
+
+<span class="c">#         return _FM(Fnew, Mnew)</span>
+
+
+<span class="c">#     def yawToWind(self, psi, height):</span>
+<span class="c">#         &quot;&quot;&quot;docstring&quot;&quot;&quot;</span>
+
+<span class="c">#         F, M = self.__translate(0.0, 0.0, -height)</span>
+<span class="c">#         Fnew = F.yawToWind(psi)</span>
+<span class="c">#         Mnew = M.yawToWind(psi)</span>
+
+<span class="c">#         return _FM(Fnew, Mnew)</span>
+
+
+<span class="c">#     def windToYaw(self, psi, height):</span>
+<span class="c">#         &quot;&quot;&quot;docstring&quot;&quot;&quot;</span>
+
+<span class="c">#         F, M = self.__translate(0.0, 0.0, height)</span>
+<span class="c">#         Fnew = F.windToYaw(psi)</span>
+<span class="c">#         Mnew = M.windToYaw(psi)</span>
+
+<span class="c">#         return _FM(Fnew, Mnew)</span>
+
+
+<span class="c">#     def hubToYaw(self, Theta, length):</span>
+
+<span class="c">#         F, M = self.__translate(length, 0.0, 0.0)</span>
+<span class="c">#         print self.F, F</span>
+<span class="c">#         print self.M, M</span>
+<span class="c">#         Fnew = F.hubToYaw(Theta)</span>
+<span class="c">#         Mnew = M.hubToYaw(Theta)</span>
+
+<span class="c">#         return _FM(Fnew, Mnew)</span>
+
+
+<span class="c">#     def yawToHub(self, Theta, length):</span>
+
+<span class="c">#         F = self.F.yawToHub(Theta)</span>
+<span class="c">#         M = self.M.yawToHub(Theta)</span>
+<span class="c">#         Fnew, Mnew = _FM(F, M).__translate(-length, 0.0, 0.0)</span>
+
+<span class="c">#         return _FM(Fnew, Mnew)</span>
+
+
+<span class="c">#     def hubToAzimuth(self, Lambda, yh, zh):</span>
+
+<span class="c">#         F, M = self.__translate(0.0, yh, zh)</span>
+<span class="c">#         Fnew = F.hubToAzimuth(Lambda)</span>
+<span class="c">#         Mnew = M.hubToAzimuth(Lambda)</span>
+
+<span class="c">#         return _FM(Fnew, Mnew)</span>
+
+
+<span class="c">#     def azimuthToHub(self, Lambda, yh, zh):</span>
+
+<span class="c">#         F = self.F.azimuthToHub(Lambda)</span>
+<span class="c">#         M = self.M.azimuthToHub(Lambda)</span>
+<span class="c">#         Fnew, Mnew = _FM(F, M).__translate(0.0, -yh, -zh)</span>
+
+<span class="c">#         return _FM(Fnew, Mnew)</span>
+
+
+<span class="c">#     def azimuthToBlade(self, Phi):</span>
+
+<span class="c">#         Fnew = self.F.azimuthToBlade(Phi)</span>
+<span class="c">#         Mnew = self.M.azimuthToBlade(Phi)</span>
+
+<span class="c">#         return _FM(Fnew, Mnew)</span>
+
+
+<span class="c">#     def bladeToAzimuth(self, Phi):</span>
+
+<span class="c">#         Fnew = self.F.bladeToAzimuth(Phi)</span>
+<span class="c">#         Mnew = self.M.bladeToAzimuth(Phi)</span>
+
+<span class="c">#         return _FM(Fnew, Mnew)</span>
+
+
+<span class="c">#     def airfoilToBlade(self, theta):</span>
+
+<span class="c">#         Fnew = self.F.airfoilToBlade(theta)</span>
+<span class="c">#         Mnew = self.M.airfoilToBlade(theta)</span>
+
+<span class="c">#         return _FM(Fnew, Mnew)</span>
+
+
+<span class="c">#     def bladeToAirfoil(self, theta):</span>
+
+<span class="c">#         Fnew = self.F.bladeToAirfoil(theta)</span>
+<span class="c">#         Mnew = self.M.bladeToAirfoil(theta)</span>
+
+<span class="c">#         return _FM(Fnew, Mnew)</span>
+
+
+<span class="c">#     def profileToAirfoil(self, d):</span>
+
+<span class="c">#         F, M = self.__translate(d, 0.0, 0.0)</span>
+<span class="c">#         Fnew = F.profileToAirfoil()</span>
+<span class="c">#         Mnew = M.profileToAirfoil()</span>
+
+<span class="c">#         return _FM(Fnew, Mnew)</span>
+
+
+<span class="c">#     def airfoilToProfile(self, d):</span>
+
+<span class="c">#         F = self.F.airfoilToProfile()</span>
+<span class="c">#         M = self.M.airfoilToProfile()</span>
+<span class="c">#         Fnew, Mnew = _FM(F, M).__translate(-d, 0.0, 0.0)</span>
+
+<span class="c">#         return _FM(Fnew, Mnew)</span>
+
+
+<span class="c">#     def __iadd__(self, other):</span>
+<span class="c">#         self.F += other.F</span>
+<span class="c">#         self.M += other.M</span>
+
+<span class="c">#         return self</span>
+
+<span class="c">#     def __div__(self, other):</span>
+<span class="c">#         F = DirectionVector(self.F.x, self.F.y, self.F.z).__div__(other)</span>
+<span class="c">#         M = DirectionVector(self.M.x, self.M.y, self.M.z).__div__(other)</span>
+
+<span class="c">#         return _FM(F, M)</span>
+
+
+<span class="c"># def example():</span>
+<span class="c">#     # from twister.common import DirectionVector</span>
+
+<span class="c">#     # define a thrust load in the rotor-aligned coordinate system</span>
+<span class="c">#     T = 1.0e6</span>
+<span class="c">#     thrust = DirectionVector(T, 0.0, 0.0)  # thrust load in the x_r direction</span>
+
+<span class="c">#     # define angles (in degrees)</span>
+<span class="c">#     tilt = 10.0</span>
+<span class="c">#     yaw = 15.0</span>
+
+<span class="c">#     # translate to wind-aligned coordinate system (through an intermediate frame)</span>
+<span class="c">#     Fwind = thrust.rotorToYaw(tilt).yawToWind(yaw)</span>
+
+<span class="c">#     # print the components</span>
+<span class="c">#     print &#39;Fwind components (x 10^6 N) =&#39;, Fwind.x/1e6, Fwind.y/1e6, Fwind.z/1e6</span>
+
+</div>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">])</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.3</span><span class="p">,</span> <span class="mf">4.3</span><span class="p">])</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">2.3</span><span class="p">,</span> <span class="mf">2.3</span><span class="p">])</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">DirectionVector</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">3.2</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">])</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">2.1</span><span class="p">,</span> <span class="mf">3.2</span><span class="p">])</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">5.6</span><span class="p">,</span> <span class="mf">7.7</span><span class="p">])</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="n">DirectionVector</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+
+    <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">,</span> <span class="n">dz</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">cross_deriv_array</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+
+    <span class="k">print</span> <span class="n">dx</span><span class="p">[</span><span class="s">&#39;dax&#39;</span><span class="p">]</span>
+    <span class="k">print</span> <span class="n">dx</span><span class="p">[</span><span class="s">&#39;day&#39;</span><span class="p">]</span>
+    <span class="k">print</span> <span class="n">dx</span><span class="p">[</span><span class="s">&#39;daz&#39;</span><span class="p">]</span>
+    <span class="k">print</span> <span class="n">dx</span><span class="p">[</span><span class="s">&#39;dby&#39;</span><span class="p">]</span>
+
+    <span class="nb">exit</span><span class="p">()</span>
+
+
+    <span class="n">T1</span> <span class="o">=</span> <span class="mf">5.0</span>
+    <span class="n">T2</span> <span class="o">=</span> <span class="mf">4.0</span>
+    <span class="n">T3</span> <span class="o">=</span> <span class="o">-</span><span class="mf">3.0</span>
+    <span class="n">tilt</span> <span class="o">=</span> <span class="mf">20.0</span>
+
+    <span class="n">F</span> <span class="o">=</span> <span class="n">DirectionVector</span><span class="p">(</span><span class="n">T1</span><span class="p">,</span> <span class="n">T2</span><span class="p">,</span> <span class="n">T3</span><span class="p">)</span><span class="o">.</span><span class="n">hubToYaw</span><span class="p">(</span><span class="n">tilt</span><span class="p">)</span>
+
+    <span class="n">Fp1</span> <span class="o">=</span> <span class="n">DirectionVector</span><span class="p">(</span><span class="n">T1</span><span class="o">+</span><span class="mf">1e-6</span><span class="p">,</span> <span class="n">T2</span><span class="p">,</span> <span class="n">T3</span><span class="p">)</span><span class="o">.</span><span class="n">hubToYaw</span><span class="p">(</span><span class="n">tilt</span><span class="p">)</span>
+    <span class="n">Fp2</span> <span class="o">=</span> <span class="n">DirectionVector</span><span class="p">(</span><span class="n">T1</span><span class="p">,</span> <span class="n">T2</span><span class="o">+</span><span class="mf">1e-6</span><span class="p">,</span> <span class="n">T3</span><span class="p">)</span><span class="o">.</span><span class="n">hubToYaw</span><span class="p">(</span><span class="n">tilt</span><span class="p">)</span>
+    <span class="n">Fp3</span> <span class="o">=</span> <span class="n">DirectionVector</span><span class="p">(</span><span class="n">T1</span><span class="p">,</span> <span class="n">T2</span><span class="p">,</span> <span class="n">T3</span><span class="o">+</span><span class="mf">1e-6</span><span class="p">)</span><span class="o">.</span><span class="n">hubToYaw</span><span class="p">(</span><span class="n">tilt</span><span class="p">)</span>
+    <span class="n">Fp4</span> <span class="o">=</span> <span class="n">DirectionVector</span><span class="p">(</span><span class="n">T1</span><span class="p">,</span> <span class="n">T2</span><span class="p">,</span> <span class="n">T3</span><span class="p">)</span><span class="o">.</span><span class="n">hubToYaw</span><span class="p">(</span><span class="n">tilt</span><span class="o">+</span><span class="mf">1e-6</span><span class="p">)</span>
+
+    <span class="n">dFx</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">dx</span>
+    <span class="n">dFy</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">dy</span>
+    <span class="n">dFz</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">dz</span>
+    <span class="c"># dFx, dFy, dFz = DirectionVector(T1, T2, T3).hubToYaw(tilt, derivatives=True)</span>
+
+    <span class="k">print</span> <span class="n">dFx</span><span class="p">[</span><span class="s">&#39;dx&#39;</span><span class="p">]</span>
+    <span class="k">print</span> <span class="p">(</span><span class="n">Fp1</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">F</span><span class="o">.</span><span class="n">x</span><span class="p">)</span><span class="o">/</span><span class="mf">1e-6</span>
+    <span class="k">print</span> <span class="n">dFx</span><span class="p">[</span><span class="s">&#39;dy&#39;</span><span class="p">]</span>
+    <span class="k">print</span> <span class="p">(</span><span class="n">Fp2</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">F</span><span class="o">.</span><span class="n">x</span><span class="p">)</span><span class="o">/</span><span class="mf">1e-6</span>
+    <span class="k">print</span> <span class="n">dFx</span><span class="p">[</span><span class="s">&#39;dz&#39;</span><span class="p">]</span>
+    <span class="k">print</span> <span class="p">(</span><span class="n">Fp3</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">F</span><span class="o">.</span><span class="n">x</span><span class="p">)</span><span class="o">/</span><span class="mf">1e-6</span>
+    <span class="k">print</span> <span class="n">dFx</span><span class="p">[</span><span class="s">&#39;dtilt&#39;</span><span class="p">],</span> <span class="s">&#39;theta&#39;</span>
+    <span class="k">print</span> <span class="p">(</span><span class="n">Fp4</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">F</span><span class="o">.</span><span class="n">x</span><span class="p">)</span><span class="o">/</span><span class="mf">1e-6</span>
+
+
+    <span class="k">print</span> <span class="n">dFy</span><span class="p">[</span><span class="s">&#39;dx&#39;</span><span class="p">]</span>
+    <span class="k">print</span> <span class="p">(</span><span class="n">Fp1</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">F</span><span class="o">.</span><span class="n">y</span><span class="p">)</span><span class="o">/</span><span class="mf">1e-6</span>
+    <span class="k">print</span> <span class="n">dFy</span><span class="p">[</span><span class="s">&#39;dy&#39;</span><span class="p">]</span>
+    <span class="k">print</span> <span class="p">(</span><span class="n">Fp2</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">F</span><span class="o">.</span><span class="n">y</span><span class="p">)</span><span class="o">/</span><span class="mf">1e-6</span>
+    <span class="k">print</span> <span class="n">dFy</span><span class="p">[</span><span class="s">&#39;dz&#39;</span><span class="p">]</span>
+    <span class="k">print</span> <span class="p">(</span><span class="n">Fp3</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">F</span><span class="o">.</span><span class="n">y</span><span class="p">)</span><span class="o">/</span><span class="mf">1e-6</span>
+    <span class="k">print</span> <span class="n">dFy</span><span class="p">[</span><span class="s">&#39;dtilt&#39;</span><span class="p">],</span> <span class="s">&#39;theta&#39;</span>
+    <span class="k">print</span> <span class="p">(</span><span class="n">Fp4</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">F</span><span class="o">.</span><span class="n">y</span><span class="p">)</span><span class="o">/</span><span class="mf">1e-6</span>
+
+
+    <span class="k">print</span> <span class="n">dFz</span><span class="p">[</span><span class="s">&#39;dx&#39;</span><span class="p">]</span>
+    <span class="k">print</span> <span class="p">(</span><span class="n">Fp1</span><span class="o">.</span><span class="n">z</span> <span class="o">-</span> <span class="n">F</span><span class="o">.</span><span class="n">z</span><span class="p">)</span><span class="o">/</span><span class="mf">1e-6</span>
+    <span class="k">print</span> <span class="n">dFz</span><span class="p">[</span><span class="s">&#39;dy&#39;</span><span class="p">]</span>
+    <span class="k">print</span> <span class="p">(</span><span class="n">Fp2</span><span class="o">.</span><span class="n">z</span> <span class="o">-</span> <span class="n">F</span><span class="o">.</span><span class="n">z</span><span class="p">)</span><span class="o">/</span><span class="mf">1e-6</span>
+    <span class="k">print</span> <span class="n">dFz</span><span class="p">[</span><span class="s">&#39;dz&#39;</span><span class="p">]</span>
+    <span class="k">print</span> <span class="p">(</span><span class="n">Fp3</span><span class="o">.</span><span class="n">z</span> <span class="o">-</span> <span class="n">F</span><span class="o">.</span><span class="n">z</span><span class="p">)</span><span class="o">/</span><span class="mf">1e-6</span>
+    <span class="k">print</span> <span class="n">dFz</span><span class="p">[</span><span class="s">&#39;dtilt&#39;</span><span class="p">],</span> <span class="s">&#39;theta&#39;</span>
+    <span class="k">print</span> <span class="p">(</span><span class="n">Fp4</span><span class="o">.</span><span class="n">z</span> <span class="o">-</span> <span class="n">F</span><span class="o">.</span><span class="n">z</span><span class="p">)</span><span class="o">/</span><span class="mf">1e-6</span>
+
+
+    <span class="k">print</span>
+    <span class="k">print</span>
+    <span class="k">print</span>
+    <span class="n">yaw</span> <span class="o">=</span> <span class="mf">3.0</span>
+    <span class="n">F</span> <span class="o">=</span> <span class="n">DirectionVector</span><span class="p">(</span><span class="n">T1</span><span class="p">,</span> <span class="n">T2</span><span class="p">,</span> <span class="n">T3</span><span class="p">)</span><span class="o">.</span><span class="n">hubToYaw</span><span class="p">(</span><span class="n">tilt</span><span class="p">)</span><span class="o">.</span><span class="n">yawToWind</span><span class="p">(</span><span class="n">yaw</span><span class="p">)</span>
+
+    <span class="n">Fp1</span> <span class="o">=</span> <span class="n">DirectionVector</span><span class="p">(</span><span class="n">T1</span><span class="o">+</span><span class="mf">1e-6</span><span class="p">,</span> <span class="n">T2</span><span class="p">,</span> <span class="n">T3</span><span class="p">)</span><span class="o">.</span><span class="n">hubToYaw</span><span class="p">(</span><span class="n">tilt</span><span class="p">)</span><span class="o">.</span><span class="n">yawToWind</span><span class="p">(</span><span class="n">yaw</span><span class="p">)</span>
+    <span class="n">Fp2</span> <span class="o">=</span> <span class="n">DirectionVector</span><span class="p">(</span><span class="n">T1</span><span class="p">,</span> <span class="n">T2</span><span class="o">+</span><span class="mf">1e-6</span><span class="p">,</span> <span class="n">T3</span><span class="p">)</span><span class="o">.</span><span class="n">hubToYaw</span><span class="p">(</span><span class="n">tilt</span><span class="p">)</span><span class="o">.</span><span class="n">yawToWind</span><span class="p">(</span><span class="n">yaw</span><span class="p">)</span>
+    <span class="n">Fp3</span> <span class="o">=</span> <span class="n">DirectionVector</span><span class="p">(</span><span class="n">T1</span><span class="p">,</span> <span class="n">T2</span><span class="p">,</span> <span class="n">T3</span><span class="o">+</span><span class="mf">1e-6</span><span class="p">)</span><span class="o">.</span><span class="n">hubToYaw</span><span class="p">(</span><span class="n">tilt</span><span class="p">)</span><span class="o">.</span><span class="n">yawToWind</span><span class="p">(</span><span class="n">yaw</span><span class="p">)</span>
+    <span class="n">Fp4</span> <span class="o">=</span> <span class="n">DirectionVector</span><span class="p">(</span><span class="n">T1</span><span class="p">,</span> <span class="n">T2</span><span class="p">,</span> <span class="n">T3</span><span class="p">)</span><span class="o">.</span><span class="n">hubToYaw</span><span class="p">(</span><span class="n">tilt</span><span class="o">+</span><span class="mf">1e-6</span><span class="p">)</span><span class="o">.</span><span class="n">yawToWind</span><span class="p">(</span><span class="n">yaw</span><span class="p">)</span>
+    <span class="n">Fp5</span> <span class="o">=</span> <span class="n">DirectionVector</span><span class="p">(</span><span class="n">T1</span><span class="p">,</span> <span class="n">T2</span><span class="p">,</span> <span class="n">T3</span><span class="p">)</span><span class="o">.</span><span class="n">hubToYaw</span><span class="p">(</span><span class="n">tilt</span><span class="p">)</span><span class="o">.</span><span class="n">yawToWind</span><span class="p">(</span><span class="n">yaw</span><span class="o">+</span><span class="mf">1e-6</span><span class="p">)</span>
+
+    <span class="n">dFx</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">dx</span>
+    <span class="n">dFy</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">dy</span>
+    <span class="n">dFz</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">dz</span>
+
+    <span class="k">print</span> <span class="n">dFx</span><span class="p">[</span><span class="s">&#39;dx&#39;</span><span class="p">]</span>
+    <span class="k">print</span> <span class="p">(</span><span class="n">Fp1</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">F</span><span class="o">.</span><span class="n">x</span><span class="p">)</span><span class="o">/</span><span class="mf">1e-6</span>
+    <span class="k">print</span> <span class="n">dFx</span><span class="p">[</span><span class="s">&#39;dy&#39;</span><span class="p">]</span>
+    <span class="k">print</span> <span class="p">(</span><span class="n">Fp2</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">F</span><span class="o">.</span><span class="n">x</span><span class="p">)</span><span class="o">/</span><span class="mf">1e-6</span>
+    <span class="k">print</span> <span class="n">dFx</span><span class="p">[</span><span class="s">&#39;dz&#39;</span><span class="p">]</span>
+    <span class="k">print</span> <span class="p">(</span><span class="n">Fp3</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">F</span><span class="o">.</span><span class="n">x</span><span class="p">)</span><span class="o">/</span><span class="mf">1e-6</span>
+    <span class="k">print</span> <span class="n">dFx</span><span class="p">[</span><span class="s">&#39;dtilt&#39;</span><span class="p">],</span> <span class="s">&#39;theta&#39;</span>
+    <span class="k">print</span> <span class="p">(</span><span class="n">Fp4</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">F</span><span class="o">.</span><span class="n">x</span><span class="p">)</span><span class="o">/</span><span class="mf">1e-6</span>
+    <span class="k">print</span> <span class="n">dFx</span><span class="p">[</span><span class="s">&#39;dyaw&#39;</span><span class="p">]</span>
+    <span class="k">print</span> <span class="p">(</span><span class="n">Fp5</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">F</span><span class="o">.</span><span class="n">x</span><span class="p">)</span><span class="o">/</span><span class="mf">1e-6</span>
+
+    <span class="k">print</span> <span class="n">dFy</span><span class="p">[</span><span class="s">&#39;dx&#39;</span><span class="p">]</span>
+    <span class="k">print</span> <span class="p">(</span><span class="n">Fp1</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">F</span><span class="o">.</span><span class="n">y</span><span class="p">)</span><span class="o">/</span><span class="mf">1e-6</span>
+    <span class="k">print</span> <span class="n">dFy</span><span class="p">[</span><span class="s">&#39;dy&#39;</span><span class="p">]</span>
+    <span class="k">print</span> <span class="p">(</span><span class="n">Fp2</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">F</span><span class="o">.</span><span class="n">y</span><span class="p">)</span><span class="o">/</span><span class="mf">1e-6</span>
+    <span class="k">print</span> <span class="n">dFy</span><span class="p">[</span><span class="s">&#39;dz&#39;</span><span class="p">]</span>
+    <span class="k">print</span> <span class="p">(</span><span class="n">Fp3</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">F</span><span class="o">.</span><span class="n">y</span><span class="p">)</span><span class="o">/</span><span class="mf">1e-6</span>
+    <span class="k">print</span> <span class="n">dFy</span><span class="p">[</span><span class="s">&#39;dtilt&#39;</span><span class="p">],</span> <span class="s">&#39;theta&#39;</span>
+    <span class="k">print</span> <span class="p">(</span><span class="n">Fp4</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">F</span><span class="o">.</span><span class="n">y</span><span class="p">)</span><span class="o">/</span><span class="mf">1e-6</span>
+    <span class="k">print</span> <span class="n">dFy</span><span class="p">[</span><span class="s">&#39;dyaw&#39;</span><span class="p">]</span>
+    <span class="k">print</span> <span class="p">(</span><span class="n">Fp5</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">F</span><span class="o">.</span><span class="n">y</span><span class="p">)</span><span class="o">/</span><span class="mf">1e-6</span>
+
+
+    <span class="k">print</span> <span class="n">dFz</span><span class="p">[</span><span class="s">&#39;dx&#39;</span><span class="p">]</span>
+    <span class="k">print</span> <span class="p">(</span><span class="n">Fp1</span><span class="o">.</span><span class="n">z</span> <span class="o">-</span> <span class="n">F</span><span class="o">.</span><span class="n">z</span><span class="p">)</span><span class="o">/</span><span class="mf">1e-6</span>
+    <span class="k">print</span> <span class="n">dFz</span><span class="p">[</span><span class="s">&#39;dy&#39;</span><span class="p">]</span>
+    <span class="k">print</span> <span class="p">(</span><span class="n">Fp2</span><span class="o">.</span><span class="n">z</span> <span class="o">-</span> <span class="n">F</span><span class="o">.</span><span class="n">z</span><span class="p">)</span><span class="o">/</span><span class="mf">1e-6</span>
+    <span class="k">print</span> <span class="n">dFz</span><span class="p">[</span><span class="s">&#39;dz&#39;</span><span class="p">]</span>
+    <span class="k">print</span> <span class="p">(</span><span class="n">Fp3</span><span class="o">.</span><span class="n">z</span> <span class="o">-</span> <span class="n">F</span><span class="o">.</span><span class="n">z</span><span class="p">)</span><span class="o">/</span><span class="mf">1e-6</span>
+    <span class="k">print</span> <span class="n">dFz</span><span class="p">[</span><span class="s">&#39;dtilt&#39;</span><span class="p">],</span> <span class="s">&#39;theta&#39;</span>
+    <span class="k">print</span> <span class="p">(</span><span class="n">Fp4</span><span class="o">.</span><span class="n">z</span> <span class="o">-</span> <span class="n">F</span><span class="o">.</span><span class="n">z</span><span class="p">)</span><span class="o">/</span><span class="mf">1e-6</span>
+    <span class="k">print</span> <span class="n">dFz</span><span class="p">[</span><span class="s">&#39;dyaw&#39;</span><span class="p">]</span>
+    <span class="k">print</span> <span class="p">(</span><span class="n">Fp5</span><span class="o">.</span><span class="n">z</span> <span class="o">-</span> <span class="n">F</span><span class="o">.</span><span class="n">z</span><span class="p">)</span><span class="o">/</span><span class="mf">1e-6</span>
+
+
+
+    <span class="c"># x = DirectionVector(4.0, 5.0, 6.0)</span>
+
+    <span class="c"># print x</span>
+
+    <span class="c"># x = DirectionVector([4.0]*2, [5.0]*2, [6.0]*2)</span>
+
+    <span class="c"># print x</span>
+
+    <span class="c"># # p = Position(1.0, 2.0, 3.0)</span>
+
+    <span class="c"># # x = DirectionVector(4.0, 5.0, 6.0)</span>
+
+    <span class="c"># # print p - x</span>
+
+    <span class="c"># # y = p - x</span>
+
+    <span class="c"># # print p.__class__</span>
+    <span class="c"># # print x.__class__</span>
+    <span class="c"># # print y.__class__</span>
+
+    <span class="c"># # print p.yawToWind(0.0, 10.0).yawToWind(0.0, 10.0)</span>
+
+    <span class="c"># # # example()</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li><a href="../../index.html">CommonSE 0.1.0 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, NREL.
+      Last updated on Jun 27, 2014.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>3.1.7. commonse.utilities.CubicSplineSegment &mdash; CommonSE 0.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/nrel.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="CommonSE 0.1.0 documentation" href="../index.html" />
+    <link rel="up" title="3. Utilities" href="../utilities.html" />
+    <link rel="next" title="3.2.1. commonse.utilities.check_gradient_unit_test" href="commonse.utilities.check_gradient_unit_test.html" />
+    <link rel="prev" title="3.1.6. commonse.utilities.smooth_abs" href="commonse.utilities.smooth_abs.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="commonse.utilities.check_gradient_unit_test.html" title="3.2.1. commonse.utilities.check_gradient_unit_test"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="commonse.utilities.smooth_abs.html" title="3.1.6. commonse.utilities.smooth_abs"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">CommonSE 0.1.0 documentation</a> &raquo;</li>
+          <li><a href="../utilities.html" accesskey="U">3. Utilities</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="commonse-utilities-cubicsplinesegment">
+<h1>3.1.7. commonse.utilities.CubicSplineSegment<a class="headerlink" href="#commonse-utilities-cubicsplinesegment" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="commonse.utilities.CubicSplineSegment">
+<em class="property">class </em><tt class="descclassname">commonse.utilities.</tt><tt class="descname">CubicSplineSegment</tt><big>(</big><em>x1</em>, <em>x2</em>, <em>f1</em>, <em>f2</em>, <em>g1</em>, <em>g2</em><big>)</big><a class="reference internal" href="../_modules/commonse/utilities.html#CubicSplineSegment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commonse.utilities.CubicSplineSegment" title="Permalink to this definition">¶</a></dt>
+<dd><p>cubic splines and the their derivatives with with respect to the variables and the parameters</p>
+<dl class="method">
+<dt id="commonse.utilities.CubicSplineSegment.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>x1</em>, <em>x2</em>, <em>f1</em>, <em>f2</em>, <em>g1</em>, <em>g2</em><big>)</big><a class="reference internal" href="../_modules/commonse/utilities.html#CubicSplineSegment.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commonse.utilities.CubicSplineSegment.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#commonse.utilities.CubicSplineSegment.__init__" title="commonse.utilities.CubicSplineSegment.__init__"><tt class="xref py py-obj docutils literal"><span class="pre">__init__</span></tt></a>(x1,&nbsp;x2,&nbsp;f1,&nbsp;f2,&nbsp;g1,&nbsp;g2)</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">eval</span></tt>(x)</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">eval_deriv</span></tt>(x)</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">eval_deriv_params</span></tt>(xvec,&nbsp;dx1,&nbsp;dx2,&nbsp;df1,&nbsp;df2,&nbsp;...)</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="commonse.utilities.smooth_abs.html"
+                        title="previous chapter">3.1.6. commonse.utilities.smooth_abs</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="commonse.utilities.check_gradient_unit_test.html"
+                        title="next chapter">3.2.1. commonse.utilities.check_gradient_unit_test</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/generated/commonse.utilities.CubicSplineSegment.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="commonse.utilities.check_gradient_unit_test.html" title="3.2.1. commonse.utilities.check_gradient_unit_test"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="commonse.utilities.smooth_abs.html" title="3.1.6. commonse.utilities.smooth_abs"
+             >previous</a> |</li>
+        <li><a href="../index.html">CommonSE 0.1.0 documentation</a> &raquo;</li>
+          <li><a href="../utilities.html" >3. Utilities</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, NREL.
+      Last updated on Jun 27, 2014.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>
