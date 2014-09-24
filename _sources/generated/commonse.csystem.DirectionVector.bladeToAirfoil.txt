@@ -1,0 +1,6 @@
+commonse.csystem.DirectionVector.bladeToAirfoil
+===============================================
+
+.. currentmodule:: commonse.csystem
+
+.. automethod:: DirectionVector.bladeToAirfoil

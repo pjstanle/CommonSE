@@ -1,0 +1,283 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>commonse.xcel_wrapper &mdash; CommonSE 0.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/nrel.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="CommonSE 0.1.0 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li><a href="../../index.html">CommonSE 0.1.0 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for commonse.xcel_wrapper</h1><div class="highlight"><pre>
+<span class="c"># Peter Graf, 9/4/12</span>
+
+<span class="c">#  Cross platform xcel wrapper</span>
+<span class="c"># uses win32com on Windows, uses applescript on Mac</span>
+
+<span class="kn">import</span> <span class="nn">os</span><span class="o">,</span><span class="nn">sys</span><span class="o">,</span><span class="nn">subprocess</span>
+
+<span class="k">def</span> <span class="nf">PlatformIsWindows</span><span class="p">():</span>
+    <span class="kn">import</span> <span class="nn">platform</span>
+    <span class="k">if</span> <span class="p">(</span><span class="s">&quot;windows&quot;</span> <span class="ow">in</span> <span class="n">platform</span><span class="o">.</span><span class="n">platform</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()):</span>
+        <span class="k">return</span> <span class="bp">True</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">False</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="n">PlatformIsWindows</span><span class="p">()):</span>
+    <span class="kn">import</span> <span class="nn">win32com.client</span> <span class="kn">as</span> <span class="nn">win32</span>
+
+<span class="k">def</span> <span class="nf">ASrun</span><span class="p">(</span><span class="n">script</span><span class="p">):</span>
+    <span class="n">fullcmd</span> <span class="o">=</span> <span class="s">&quot;osascript </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">script</span>
+<span class="c">#    print &quot;executing: &quot;, fullcmd</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="n">fullcmd</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">ASopenWorkbook</span><span class="p">(</span><span class="n">workbook</span><span class="p">):</span>
+    <span class="n">ln1</span> <span class="o">=</span> <span class="s">&quot;set p to </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s"> &quot;</span> <span class="o">%</span> <span class="n">workbook</span>
+<span class="c">#/Users/pgraf/work/wese/wese-6_13_12/wese2/examples/excel-mac/bosMod.xlsx&quot;</span>
+    <span class="n">ln2</span> <span class="o">=</span> <span class="s">&quot;set a to POSIX file p&quot;</span>
+    <span class="n">ln3</span>  <span class="o">=</span> <span class="s">&quot;tell application </span><span class="se">\&quot;</span><span class="s">Microsoft Excel</span><span class="se">\&quot;</span><span class="s">&quot;</span>
+    <span class="n">ln4</span> <span class="o">=</span> <span class="s">&quot;open a&quot;</span>
+    <span class="n">ln5</span> <span class="o">=</span> <span class="s">&quot;end tell&quot;</span>
+    <span class="n">cmd</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="se">\n</span><span class="s">  </span><span class="si">%s</span><span class="se">\n</span><span class="s">  </span><span class="si">%s</span><span class="se">\n</span><span class="s">  </span><span class="si">%s</span><span class="se">\n</span><span class="s">  </span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span>  <span class="o">%</span> <span class="p">(</span><span class="n">ln1</span><span class="p">,</span> <span class="n">ln2</span><span class="p">,</span> <span class="n">ln3</span><span class="p">,</span> <span class="n">ln4</span><span class="p">,</span> <span class="n">ln5</span><span class="p">)</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="nb">file</span><span class="p">(</span><span class="s">&quot;xcelcmd.txt&quot;</span><span class="p">,</span> <span class="s">&quot;w&quot;</span><span class="p">)</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="n">ASrun</span><span class="p">(</span><span class="s">&quot;xcelcmd.txt&quot;</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">AScloseExcel</span><span class="p">():</span>
+    <span class="n">ln1</span> <span class="o">=</span> <span class="s">&quot;tell application </span><span class="se">\&quot;</span><span class="s">Microsoft Excel</span><span class="se">\&quot;</span><span class="s">&quot;</span>
+    <span class="n">ln2</span> <span class="o">=</span> <span class="s">&quot;quit saving no&quot;</span>
+    <span class="n">ln3</span> <span class="o">=</span> <span class="s">&quot;end tell&quot;</span>
+    <span class="n">cmd</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="se">\n</span><span class="s">  </span><span class="si">%s</span><span class="se">\n</span><span class="s">  </span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span>  <span class="o">%</span> <span class="p">(</span><span class="n">ln1</span><span class="p">,</span> <span class="n">ln2</span><span class="p">,</span> <span class="n">ln3</span><span class="p">)</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="nb">file</span><span class="p">(</span><span class="s">&quot;xcelcmd.txt&quot;</span><span class="p">,</span> <span class="s">&quot;w&quot;</span><span class="p">)</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="n">ASrun</span><span class="p">(</span><span class="s">&quot;xcelcmd.txt&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">ASTellXcel</span><span class="p">(</span><span class="n">cmdin</span><span class="p">):</span>
+<span class="c"># set value of cell &quot;B1&quot; to myvar &amp; &quot; test&quot;</span>
+    <span class="n">ln0</span> <span class="o">=</span> <span class="s">&quot;set myvar to 0&quot;</span>
+    <span class="n">ln1</span> <span class="o">=</span> <span class="s">&quot;tell application </span><span class="se">\&quot;</span><span class="s">Microsoft Excel</span><span class="se">\&quot;</span><span class="s">&quot;</span>
+    <span class="c"># cmdin goes here</span>
+    <span class="n">ln3</span> <span class="o">=</span> <span class="s">&quot;end tell&quot;</span>
+    <span class="n">ln4</span> <span class="o">=</span> <span class="s">&quot;return myvar&quot;</span>
+    <span class="n">cmd</span> <span class="o">=</span> <span class="s">&quot; </span><span class="si">%s</span><span class="se">\n</span><span class="s">  </span><span class="si">%s</span><span class="se">\n</span><span class="s">  </span><span class="si">%s</span><span class="se">\n</span><span class="s">  </span><span class="si">%s</span><span class="se">\n</span><span class="s">  </span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span>  <span class="o">%</span> <span class="p">(</span><span class="n">ln0</span><span class="p">,</span> <span class="n">ln1</span><span class="p">,</span> <span class="n">cmdin</span><span class="p">,</span> <span class="n">ln3</span><span class="p">,</span> <span class="n">ln4</span><span class="p">)</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="nb">file</span><span class="p">(</span><span class="s">&quot;xcelcmd.txt&quot;</span><span class="p">,</span> <span class="s">&quot;w&quot;</span><span class="p">)</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="n">fullcmd</span> <span class="o">=</span> <span class="s">&quot;osascript xcelcmd.txt&quot;</span>
+<span class="c">#    print &quot;exec &quot;, fullcmd</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s">&quot;osascript xcelcmd.txt &gt; myout&quot;</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">ASsetCell</span><span class="p">(</span><span class="n">irow</span><span class="p">,</span><span class="n">icol</span><span class="p">,</span><span class="n">value</span><span class="p">,</span> <span class="n">worksheet</span><span class="p">):</span>
+    <span class="kn">import</span> <span class="nn">string</span>
+    <span class="n">mycell</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%s%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">ascii_uppercase</span><span class="p">[</span><span class="n">icol</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">irow</span><span class="p">)</span>
+    <span class="n">mystr</span> <span class="o">=</span> <span class="s">&quot;activate object worksheet </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s">  </span><span class="se">\n</span><span class="s"> set value of cell </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s"> to </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">worksheet</span><span class="p">,</span> <span class="n">mycell</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+    <span class="n">ASTellXcel</span><span class="p">(</span><span class="n">mystr</span><span class="p">)</span>
+    
+<span class="k">def</span> <span class="nf">ASgetCell</span><span class="p">(</span><span class="n">irow</span><span class="p">,</span> <span class="n">icol</span><span class="p">,</span> <span class="n">worksheet</span><span class="p">):</span>
+    <span class="kn">import</span> <span class="nn">string</span>
+    <span class="n">mycell</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%s%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">ascii_uppercase</span><span class="p">[</span><span class="n">icol</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">irow</span><span class="p">)</span>
+    <span class="n">mystr</span> <span class="o">=</span> <span class="s">&quot;activate object worksheet </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s">  </span><span class="se">\n</span><span class="s"> copy value of cell </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s"> to myvar&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">worksheet</span><span class="p">,</span> <span class="n">mycell</span><span class="p">)</span>
+    <span class="n">ASTellXcel</span><span class="p">(</span><span class="n">mystr</span><span class="p">)</span>
+    <span class="n">val</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="nb">file</span><span class="p">(</span><span class="s">&quot;myout&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">readlines</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">val</span>
+
+<span class="k">def</span> <span class="nf">AScountWorkbooks</span><span class="p">():</span>
+    <span class="n">cmd</span> <span class="o">=</span> <span class="s">&quot;tell application </span><span class="se">\&quot;</span><span class="s">Microsoft Excel</span><span class="se">\&quot;</span><span class="s"> </span><span class="se">\n</span><span class="s"> set myvar to count each workbook </span><span class="se">\n</span><span class="s"> return myvar </span><span class="se">\n</span><span class="s"> end tell&quot;</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s">&quot;osascript -e &#39;</span><span class="si">%s</span><span class="s">&#39;  &gt; myout&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">cmd</span><span class="p">))</span>
+    <span class="n">val</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">file</span><span class="p">(</span><span class="s">&quot;myout&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">readlines</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">val</span>
+
+<span class="k">def</span> <span class="nf">AScloseWorkbook</span><span class="p">():</span>
+    <span class="n">cmd</span> <span class="o">=</span> <span class="s">&quot;tell application </span><span class="se">\&quot;</span><span class="s">Microsoft Excel</span><span class="se">\&quot;</span><span class="s"> </span><span class="se">\n</span><span class="s"> close active workbook saving no </span><span class="se">\n</span><span class="s">  end tell&quot;</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s">&quot;osascript -e &#39;</span><span class="si">%s</span><span class="s">&#39;  &gt; myout&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">cmd</span><span class="p">))</span>
+
+    
+<span class="c"># error codes?</span>
+<span class="c"># 0: all is well</span>
+<span class="c"># 1: failed to open Excel</span>
+<span class="c"># 2: failed to open workbook</span>
+<span class="c"># 3: failed to close Excel</span>
+
+<div class="viewcode-block" id="ExcelWrapper"><a class="viewcode-back" href="../../generated/commonse.xcel_wrapper.ExcelWrapper.html#commonse.xcel_wrapper.ExcelWrapper">[docs]</a><span class="k">class</span> <span class="nc">ExcelWrapper</span> <span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="ExcelWrapper.__init__"><a class="viewcode-back" href="../../generated/commonse.xcel_wrapper.ExcelWrapper.html#commonse.xcel_wrapper.ExcelWrapper.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">windows</span> <span class="o">=</span> <span class="n">PlatformIsWindows</span><span class="p">()</span>
+</div>
+    <span class="k">def</span> <span class="nf">openWorkbook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xlsfile</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xlsfile</span> <span class="o">=</span> <span class="n">xlsfile</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">windows</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">xl</span> <span class="o">=</span> <span class="n">win32</span><span class="o">.</span><span class="n">gencache</span><span class="o">.</span><span class="n">EnsureDispatch</span><span class="p">(</span><span class="s">&#39;Excel.Application&#39;</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span> <span class="p">(</span><span class="s">&quot;Error starting Excel</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="mi">1</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">windows</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xl</span><span class="o">.</span><span class="n">Workbooks</span><span class="o">.</span><span class="n">Open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xlsfile</span><span class="p">,</span> <span class="n">ReadOnly</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">xl</span> <span class="o">=</span> <span class="n">ASopenWorkbook</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xlsfile</span><span class="p">)</span>
+
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span> <span class="p">(</span><span class="s">&quot;Error opening Excel file &#39;</span><span class="si">%s</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">xlsfile</span><span class="p">)</span>        
+            <span class="c"># If user doesn&#39;t have any other workbooks open in Excel, quit Excel</span>
+            <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">windows</span><span class="p">):</span>
+                <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xl</span><span class="o">.</span><span class="n">Application</span><span class="o">.</span><span class="n">Workbooks</span><span class="o">.</span><span class="n">Count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">xl</span><span class="o">.</span><span class="n">Application</span><span class="o">.</span><span class="n">Quit</span><span class="p">()</span>
+            <span class="k">return</span> <span class="mi">2</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">closeExcel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">windows</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ss</span><span class="o">.</span><span class="n">Close</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+                <span class="c"># If user doesn&#39;t have any other workbooks open in Excel, quit Excel</span>
+                <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xl</span><span class="o">.</span><span class="n">Application</span><span class="o">.</span><span class="n">Workbooks</span><span class="o">.</span><span class="n">Count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">xl</span><span class="o">.</span><span class="n">Application</span><span class="o">.</span><span class="n">Quit</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">AScloseExcel</span><span class="p">()</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">&quot;failed to close Excel&quot;</span>
+            <span class="k">return</span> <span class="mi">3</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">countWorkbooks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">windows</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">xl</span><span class="o">.</span><span class="n">Application</span><span class="o">.</span><span class="n">Workbooks</span><span class="o">.</span><span class="n">Count</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">AScountWorkbooks</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">closeWorkbook</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">windows</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ss</span><span class="o">.</span><span class="n">Close</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">AScloseWorkbook</span><span class="p">()</span>
+    
+    <span class="k">def</span> <span class="nf">setCell</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">irow</span><span class="p">,</span><span class="n">icol</span><span class="p">,</span><span class="n">value</span><span class="p">,</span> <span class="n">worksheet</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        set an input cell in an Excel spreadsheet</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">windows</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ss</span><span class="o">.</span><span class="n">Activate</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">xl</span><span class="o">.</span><span class="n">Worksheets</span><span class="p">(</span><span class="n">worksheet</span><span class="p">)</span><span class="o">.</span><span class="n">Activate</span><span class="p">()</span>
+            <span class="n">sh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ss</span><span class="o">.</span><span class="n">ActiveSheet</span>
+            <span class="n">sh</span><span class="o">.</span><span class="n">Cells</span><span class="p">(</span><span class="n">irow</span><span class="p">,</span><span class="n">icol</span><span class="p">)</span><span class="o">.</span><span class="n">Value</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="n">sh</span><span class="o">.</span><span class="n">Calculate</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ASsetCell</span><span class="p">(</span><span class="n">irow</span><span class="p">,</span><span class="n">icol</span><span class="p">,</span><span class="n">value</span><span class="p">,</span> <span class="n">worksheet</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">getCell</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">irow</span><span class="p">,</span><span class="n">icol</span><span class="p">,</span> <span class="n">worksheet</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        get an output cell in a spreadsheet</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">windows</span><span class="p">):</span>
+            <span class="n">cval</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ss</span><span class="o">.</span><span class="n">Worksheets</span><span class="p">(</span><span class="n">worksheet</span><span class="p">)</span><span class="o">.</span><span class="n">Cells</span><span class="p">(</span><span class="n">irow</span><span class="p">,</span><span class="n">icol</span><span class="p">)</span><span class="o">.</span><span class="n">Value</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cval</span> <span class="o">=</span> <span class="n">ASgetCell</span><span class="p">(</span><span class="n">irow</span><span class="p">,</span> <span class="n">icol</span><span class="p">,</span> <span class="n">worksheet</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">cval</span><span class="p">)</span>
+
+
+<span class="c">#-----------------------------------------------------------</span>
+</div>
+<span class="k">def</span> <span class="nf">example</span><span class="p">():</span>
+
+<span class="c">#    workbook = &quot;Your path to an excel workbook&quot;</span>
+    <span class="n">workbook</span> <span class="o">=</span> <span class="s">&quot;/Users/pgraf/work/wese/wese-6_13_12/wese2/examples/excel_wrapper/blank.xlsx&quot;</span>    
+    <span class="n">xcel</span> <span class="o">=</span> <span class="n">ExcelWrapper</span><span class="p">()</span>
+    <span class="n">xcel</span><span class="o">.</span><span class="n">openWorkbook</span><span class="p">(</span><span class="n">workbook</span><span class="p">)</span>
+    <span class="n">nbooks</span> <span class="o">=</span> <span class="n">xcel</span><span class="o">.</span><span class="n">countWorkbooks</span><span class="p">()</span>
+    <span class="k">print</span> <span class="s">&quot;</span><span class="si">%d</span><span class="s"> workbooks open&quot;</span> <span class="o">%</span> <span class="n">nbooks</span>
+    <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">10</span><span class="p">):</span>
+        <span class="n">xcel</span><span class="o">.</span><span class="n">setCell</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">n</span><span class="p">,</span><span class="s">&quot;Sheet1&quot;</span><span class="p">)</span>
+        <span class="n">val</span><span class="p">,</span> <span class="n">res</span> <span class="o">=</span> <span class="n">xcel</span><span class="o">.</span><span class="n">getCell</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="s">&quot;Sheet1&quot;</span><span class="p">)</span>
+        <span class="k">print</span> <span class="s">&quot;n=</span><span class="si">%d</span><span class="s"> val(1,2) = </span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">val</span><span class="p">)</span>
+    <span class="n">xcel</span><span class="o">.</span><span class="n">closeWorkbook</span><span class="p">()</span>
+    <span class="n">xcel</span><span class="o">.</span><span class="n">closeExcel</span><span class="p">()</span>
+
+
+<span class="k">if</span> <span class="n">__name__</span><span class="o">==</span><span class="s">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="n">example</span><span class="p">()</span>
+
+
+
+    
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li><a href="../../index.html">CommonSE 0.1.0 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, NREL.
+      Last updated on Sep 24, 2014.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

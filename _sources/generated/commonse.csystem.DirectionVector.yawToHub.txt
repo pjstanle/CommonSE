@@ -1,0 +1,6 @@
+commonse.csystem.DirectionVector.yawToHub
+=========================================
+
+.. currentmodule:: commonse.csystem
+
+.. automethod:: DirectionVector.yawToHub

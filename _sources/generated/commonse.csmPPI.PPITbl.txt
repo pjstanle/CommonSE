@@ -1,0 +1,24 @@
+commonse.csmPPI.PPITbl
+======================
+
+.. currentmodule:: commonse.csmPPI
+
+.. autoclass:: PPITbl
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~PPITbl.__init__
+      ~PPITbl.add_row
+      ~PPITbl.getEsc
+   
+   
+
+   
+   
+   

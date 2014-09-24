@@ -1,0 +1,23 @@
+commonse.csmPPI.PPI
+===================
+
+.. currentmodule:: commonse.csmPPI
+
+.. autoclass:: PPI
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~PPI.__init__
+      ~PPI.compute
+   
+   
+
+   
+   
+   
