@@ -1,6 +1,0 @@
-commonse.csystem.DirectionVector.yawToWind
-==========================================
-
-.. currentmodule:: commonse.csystem
-
-.. automethod:: DirectionVector.yawToWind

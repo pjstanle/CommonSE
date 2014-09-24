@@ -1,6 +1,0 @@
-commonse.csystem.DirectionVector.azimuthToBlade
-===============================================
-
-.. currentmodule:: commonse.csystem
-
-.. automethod:: DirectionVector.azimuthToBlade

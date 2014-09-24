@@ -1,6 +1,0 @@
-commonse.csystem.DirectionVector.hubToAzimuth
-=============================================
-
-.. currentmodule:: commonse.csystem
-
-.. automethod:: DirectionVector.hubToAzimuth

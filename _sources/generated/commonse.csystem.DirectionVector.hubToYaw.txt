@@ -1,6 +1,0 @@
-commonse.csystem.DirectionVector.hubToYaw
-=========================================
-
-.. currentmodule:: commonse.csystem
-
-.. automethod:: DirectionVector.hubToYaw

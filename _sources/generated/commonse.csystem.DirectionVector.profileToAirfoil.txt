@@ -1,6 +1,0 @@
-commonse.csystem.DirectionVector.profileToAirfoil
-=================================================
-
-.. currentmodule:: commonse.csystem
-
-.. automethod:: DirectionVector.profileToAirfoil

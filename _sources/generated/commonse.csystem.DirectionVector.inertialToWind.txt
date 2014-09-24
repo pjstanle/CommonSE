@@ -1,6 +1,0 @@
-commonse.csystem.DirectionVector.inertialToWind
-===============================================
-
-.. currentmodule:: commonse.csystem
-
-.. automethod:: DirectionVector.inertialToWind
