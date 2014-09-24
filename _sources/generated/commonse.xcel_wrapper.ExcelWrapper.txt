@@ -1,0 +1,28 @@
+commonse.xcel_wrapper.ExcelWrapper
+==================================
+
+.. currentmodule:: commonse.xcel_wrapper
+
+.. autoclass:: ExcelWrapper
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ExcelWrapper.__init__
+      ~ExcelWrapper.closeExcel
+      ~ExcelWrapper.closeWorkbook
+      ~ExcelWrapper.countWorkbooks
+      ~ExcelWrapper.getCell
+      ~ExcelWrapper.openWorkbook
+      ~ExcelWrapper.setCell
+   
+   
+
+   
+   
+   

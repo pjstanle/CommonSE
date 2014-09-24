@@ -1,0 +1,23 @@
+commonse.csmPPI.Escalator
+=========================
+
+.. currentmodule:: commonse.csmPPI
+
+.. autoclass:: Escalator
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Escalator.__init__
+      ~Escalator.compute
+   
+   
+
+   
+   
+   

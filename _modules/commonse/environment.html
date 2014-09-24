@@ -1,0 +1,502 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>commonse.environment &mdash; CommonSE 0.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/nrel.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="CommonSE 0.1.0 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li><a href="../../index.html">CommonSE 0.1.0 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for commonse.environment</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/env python</span>
+<span class="c"># encoding: utf-8</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">environment.py</span>
+
+<span class="sd">Created by Andrew Ning on 2012-01-20.</span>
+<span class="sd">Copyright (c) NREL. All rights reserved.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">brentq</span>
+<span class="kn">from</span> <span class="nn">openmdao.main.api</span> <span class="kn">import</span> <span class="n">Component</span>
+<span class="kn">from</span> <span class="nn">openmdao.main.datatypes.api</span> <span class="kn">import</span> <span class="n">Float</span><span class="p">,</span> <span class="n">Array</span>
+
+<span class="kn">from</span> <span class="nn">utilities</span> <span class="kn">import</span> <span class="n">hstack</span><span class="p">,</span> <span class="n">vstack</span>
+
+<span class="c"># -----------------</span>
+<span class="c">#  Base Components</span>
+<span class="c"># -----------------</span>
+
+
+<div class="viewcode-block" id="WindBase"><a class="viewcode-back" href="../../environment.html#commonse.environment.WindBase">[docs]</a><span class="k">class</span> <span class="nc">WindBase</span><span class="p">(</span><span class="n">Component</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;base component for wind speed/direction&quot;&quot;&quot;</span>
+
+    <span class="c"># TODO: if I put required=True here for Uref there is another bug</span>
+
+    <span class="c"># variables</span>
+    <span class="n">Uref</span> <span class="o">=</span> <span class="n">Float</span><span class="p">(</span><span class="n">iotype</span><span class="o">=</span><span class="s">&#39;in&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s">&#39;m/s&#39;</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s">&#39;reference wind speed (usually at hub height)&#39;</span><span class="p">)</span>
+    <span class="n">zref</span> <span class="o">=</span> <span class="n">Float</span><span class="p">(</span><span class="n">iotype</span><span class="o">=</span><span class="s">&#39;in&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s">&#39;m&#39;</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s">&#39;corresponding reference height&#39;</span><span class="p">)</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">Array</span><span class="p">(</span><span class="n">iotype</span><span class="o">=</span><span class="s">&#39;in&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s">&#39;m&#39;</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s">&#39;heights where wind speed should be computed&#39;</span><span class="p">)</span>
+
+    <span class="c"># parameters</span>
+    <span class="n">z0</span> <span class="o">=</span> <span class="n">Float</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">iotype</span><span class="o">=</span><span class="s">&#39;in&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s">&#39;m&#39;</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s">&#39;bottom of wind profile (height of ground/sea)&#39;</span><span class="p">)</span>
+
+    <span class="c"># out</span>
+    <span class="n">U</span> <span class="o">=</span> <span class="n">Array</span><span class="p">(</span><span class="n">iotype</span><span class="o">=</span><span class="s">&#39;out&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s">&#39;m/s&#39;</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s">&#39;magnitude of wind speed at each z location&#39;</span><span class="p">)</span>
+    <span class="n">beta</span> <span class="o">=</span> <span class="n">Array</span><span class="p">(</span><span class="n">iotype</span><span class="o">=</span><span class="s">&#39;out&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s">&#39;deg&#39;</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s">&#39;corresponding wind angles relative to inertial coordinate system&#39;</span><span class="p">)</span>
+
+    <span class="n">missing_deriv_policy</span> <span class="o">=</span> <span class="s">&#39;assume_zero&#39;</span>  <span class="c"># TODO: for now OpenMDAO issue</span>
+
+</div>
+<div class="viewcode-block" id="WaveBase"><a class="viewcode-back" href="../../environment.html#commonse.environment.WaveBase">[docs]</a><span class="k">class</span> <span class="nc">WaveBase</span><span class="p">(</span><span class="n">Component</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;base component for wave speed/direction&quot;&quot;&quot;</span>
+
+    <span class="c"># variables</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">Array</span><span class="p">(</span><span class="n">iotype</span><span class="o">=</span><span class="s">&#39;in&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s">&#39;m&#39;</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s">&#39;heights where wave speed should be computed&#39;</span><span class="p">)</span>
+
+    <span class="c"># out</span>
+    <span class="n">U</span> <span class="o">=</span> <span class="n">Array</span><span class="p">(</span><span class="n">iotype</span><span class="o">=</span><span class="s">&#39;out&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s">&#39;m/s&#39;</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s">&#39;magnitude of wave speed at each z location&#39;</span><span class="p">)</span>
+    <span class="n">A</span> <span class="o">=</span> <span class="n">Array</span><span class="p">(</span><span class="n">iotype</span><span class="o">=</span><span class="s">&#39;out&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s">&#39;m/s**2&#39;</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s">&#39;magnitude of wave acceleration at each z location&#39;</span><span class="p">)</span>
+    <span class="n">beta</span> <span class="o">=</span> <span class="n">Array</span><span class="p">(</span><span class="n">iotype</span><span class="o">=</span><span class="s">&#39;out&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s">&#39;deg&#39;</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s">&#39;corresponding wave angles relative to inertial coordinate system&#39;</span><span class="p">)</span>
+
+    <span class="n">missing_deriv_policy</span> <span class="o">=</span> <span class="s">&#39;assume_zero&#39;</span>
+
+    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;default to no waves&quot;&quot;&quot;</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">U</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">beta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="SoilBase"><a class="viewcode-back" href="../../environment.html#commonse.environment.SoilBase">[docs]</a><span class="k">class</span> <span class="nc">SoilBase</span><span class="p">(</span><span class="n">Component</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;base component for soil stiffness&quot;&quot;&quot;</span>
+
+    <span class="c"># out</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="n">Array</span><span class="p">(</span><span class="n">iotype</span><span class="o">=</span><span class="s">&#39;out&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s">&#39;N/m&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s">&#39;spring stiffness. rigid directions should use </span><span class="se">\</span>
+<span class="s">        ``float(&#39;&#39;inf&#39;&#39;)``. order: (x, theta_x, y, theta_y, z, theta_z)&#39;</span><span class="p">)</span>
+
+    <span class="n">missing_deriv_policy</span> <span class="o">=</span> <span class="s">&#39;assume_zero&#39;</span>  <span class="c"># TODO: for now OpenMDAO issue</span>
+
+
+
+
+<span class="c"># -----------------------</span>
+<span class="c">#  Subclassed Components</span>
+<span class="c"># -----------------------</span>
+
+</div>
+<div class="viewcode-block" id="PowerWind"><a class="viewcode-back" href="../../environment.html#commonse.environment.PowerWind">[docs]</a><span class="k">class</span> <span class="nc">PowerWind</span><span class="p">(</span><span class="n">WindBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;power-law profile wind.  any nodes must not cross z0, and if a node is at z0</span>
+<span class="sd">    it must stay at that point.  otherwise gradients crossing the boundary will be wrong.&quot;&quot;&quot;</span>
+
+    <span class="c"># parameters</span>
+    <span class="n">shearExp</span> <span class="o">=</span> <span class="n">Float</span><span class="p">(</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">iotype</span><span class="o">=</span><span class="s">&#39;in&#39;</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s">&#39;shear exponent&#39;</span><span class="p">)</span>
+    <span class="n">betaWind</span> <span class="o">=</span> <span class="n">Float</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">iotype</span><span class="o">=</span><span class="s">&#39;in&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s">&#39;deg&#39;</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s">&#39;wind angle relative to inertial coordinate system&#39;</span><span class="p">)</span>
+
+    <span class="n">missing_deriv_policy</span> <span class="o">=</span> <span class="s">&#39;assume_zero&#39;</span>
+
+
+    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="c"># rename</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span>
+        <span class="n">zref</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zref</span>
+        <span class="n">z0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">z0</span>
+
+        <span class="c"># velocity</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">z</span> <span class="o">&gt;</span> <span class="n">z0</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">U</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">U</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Uref</span><span class="o">*</span><span class="p">((</span><span class="n">z</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">-</span> <span class="n">z0</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">zref</span> <span class="o">-</span> <span class="n">z0</span><span class="p">))</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">shearExp</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">beta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">betaWind</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+
+        <span class="c"># # add small cubic spline to allow continuity in gradient</span>
+        <span class="c"># k = 0.01  # fraction of profile with cubic spline</span>
+        <span class="c"># zsmall = z0 + k*(zref - z0)</span>
+
+        <span class="c"># self.spline = CubicSpline(x1=z0, x2=zsmall, f1=0.0, f2=Uref*k**shearExp,</span>
+        <span class="c">#     g1=0.0, g2=Uref*k**shearExp*shearExp/(zsmall - z0))</span>
+
+        <span class="c"># idx = np.logical_and(z &gt; z0, z &lt; zsmall)</span>
+        <span class="c"># self.U[idx] = self.spline.eval(z[idx])</span>
+
+        <span class="c"># self.zsmall = zsmall</span>
+        <span class="c"># self.k = k</span>
+
+
+    <span class="k">def</span> <span class="nf">list_deriv_vars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">inputs</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;Uref&#39;</span><span class="p">,</span> <span class="s">&#39;z&#39;</span><span class="p">,</span> <span class="s">&#39;zref&#39;</span><span class="p">)</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;U&#39;</span><span class="p">,)</span>
+
+        <span class="k">return</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span>
+
+
+    <span class="k">def</span> <span class="nf">provideJ</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="c"># rename</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span>
+        <span class="n">zref</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zref</span>
+        <span class="n">z0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">z0</span>
+        <span class="n">shearExp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shearExp</span>
+        <span class="n">U</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">U</span>
+        <span class="n">Uref</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Uref</span>
+
+        <span class="c"># gradients</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+        <span class="n">dU_dUref</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+        <span class="n">dU_dz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+        <span class="n">dU_dzref</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">z</span> <span class="o">&gt;</span> <span class="n">z0</span>
+        <span class="n">dU_dUref</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">U</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">/</span><span class="n">Uref</span>
+        <span class="n">dU_dz</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">U</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">*</span><span class="n">shearExp</span><span class="o">/</span><span class="p">(</span><span class="n">z</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">-</span> <span class="n">z0</span><span class="p">)</span>
+        <span class="n">dU_dzref</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">U</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">*</span><span class="n">shearExp</span><span class="o">/</span><span class="p">(</span><span class="n">zref</span> <span class="o">-</span> <span class="n">z0</span><span class="p">)</span>
+
+
+        <span class="c"># # cubic spline region</span>
+        <span class="c"># idx = np.logical_and(z &gt; z0, z &lt; zsmall)</span>
+
+        <span class="c"># # d w.r.t z</span>
+        <span class="c"># dU_dz[idx] = self.spline.eval_deriv(z[idx])</span>
+
+        <span class="c"># # d w.r.t. Uref</span>
+        <span class="c"># df2_dUref = k**shearExp</span>
+        <span class="c"># dg2_dUref = k**shearExp*shearExp/(zsmall - z0)</span>
+        <span class="c"># dU_dUref[idx] = self.spline.eval_deriv_params(z[idx], 0.0, 0.0, 0.0, df2_dUref, 0.0, dg2_dUref)</span>
+
+        <span class="c"># # d w.r.t. zref</span>
+        <span class="c"># dx2_dzref = k</span>
+        <span class="c"># dg2_dzref = -Uref*k**shearExp*shearExp/k/(zref - z0)**2</span>
+        <span class="c"># dU_dzref[idx] = self.spline.eval_deriv_params(z[idx], 0.0, dx2_dzref, 0.0, 0.0, 0.0, dg2_dzref)</span>
+
+        <span class="n">J</span> <span class="o">=</span> <span class="n">hstack</span><span class="p">([</span><span class="n">dU_dUref</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">dU_dz</span><span class="p">),</span> <span class="n">dU_dzref</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">J</span>
+
+
+
+</div>
+<div class="viewcode-block" id="LogWind"><a class="viewcode-back" href="../../environment.html#commonse.environment.LogWind">[docs]</a><span class="k">class</span> <span class="nc">LogWind</span><span class="p">(</span><span class="n">WindBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;logarithmic-profile wind&quot;&quot;&quot;</span>
+
+    <span class="c"># parameters</span>
+    <span class="n">z_roughness</span> <span class="o">=</span> <span class="n">Float</span><span class="p">(</span><span class="mf">10.0</span><span class="p">,</span> <span class="n">iotype</span><span class="o">=</span><span class="s">&#39;in&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s">&#39;mm&#39;</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s">&#39;surface roughness length&#39;</span><span class="p">)</span>
+    <span class="n">betaWind</span> <span class="o">=</span> <span class="n">Float</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">iotype</span><span class="o">=</span><span class="s">&#39;in&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s">&#39;deg&#39;</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s">&#39;wind angle relative to inertial coordinate system&#39;</span><span class="p">)</span>
+
+    <span class="n">missing_deriv_policy</span> <span class="o">=</span> <span class="s">&#39;assume_zero&#39;</span>
+
+    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="c"># rename</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span>
+        <span class="n">zref</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zref</span>
+        <span class="n">z0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">z0</span>
+        <span class="n">z_roughness</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">z_roughness</span><span class="o">/</span><span class="mf">1e3</span>  <span class="c"># convert to m</span>
+
+        <span class="c"># find velocity</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="p">[</span><span class="n">z</span> <span class="o">-</span> <span class="n">z0</span> <span class="o">&gt;</span> <span class="n">z_roughness</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">U</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">U</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Uref</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">((</span><span class="n">z</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">-</span> <span class="n">z0</span><span class="p">)</span><span class="o">/</span><span class="n">z_roughness</span><span class="p">)</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">((</span><span class="n">zref</span> <span class="o">-</span> <span class="n">z0</span><span class="p">)</span><span class="o">/</span><span class="n">z_roughness</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">beta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">betaWind</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">list_deriv_vars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">inputs</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;Uref&#39;</span><span class="p">,</span> <span class="s">&#39;z&#39;</span><span class="p">,</span> <span class="s">&#39;zref&#39;</span><span class="p">)</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;U&#39;</span><span class="p">,)</span>
+
+        <span class="k">return</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span>
+
+
+    <span class="k">def</span> <span class="nf">provideJ</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="c"># rename</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span>
+        <span class="n">zref</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zref</span>
+        <span class="n">z0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">z0</span>
+        <span class="n">z_roughness</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">z_roughness</span><span class="o">/</span><span class="mf">1e3</span>
+        <span class="n">Uref</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Uref</span>
+
+        <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+
+        <span class="n">dU_dUref</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+        <span class="n">dU_dz_diag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+        <span class="n">dU_dzref</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+
+        <span class="n">idx</span> <span class="o">=</span> <span class="p">[</span><span class="n">z</span> <span class="o">-</span> <span class="n">z0</span> <span class="o">&gt;</span> <span class="n">z_roughness</span><span class="p">]</span>
+        <span class="n">lt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">((</span><span class="n">z</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">-</span> <span class="n">z0</span><span class="p">)</span><span class="o">/</span><span class="n">z_roughness</span><span class="p">)</span>
+        <span class="n">lb</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">((</span><span class="n">zref</span> <span class="o">-</span> <span class="n">z0</span><span class="p">)</span><span class="o">/</span><span class="n">z_roughness</span><span class="p">)</span>
+        <span class="n">dU_dUref</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">lt</span><span class="o">/</span><span class="n">lb</span>
+        <span class="n">dU_dz_diag</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">Uref</span><span class="o">/</span><span class="n">lb</span> <span class="o">/</span> <span class="p">(</span><span class="n">z</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">-</span> <span class="n">z0</span><span class="p">)</span>
+        <span class="n">dU_dzref</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">Uref</span><span class="o">*</span><span class="n">lt</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">((</span><span class="n">zref</span> <span class="o">-</span> <span class="n">z0</span><span class="p">)</span><span class="o">/</span><span class="n">z_roughness</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="n">zref</span> <span class="o">-</span> <span class="n">z0</span><span class="p">)</span>
+
+        <span class="n">J</span> <span class="o">=</span> <span class="n">hstack</span><span class="p">([</span><span class="n">dU_dUref</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">dU_dz_diag</span><span class="p">),</span> <span class="n">dU_dzref</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">J</span>
+
+
+</div>
+<div class="viewcode-block" id="LinearWaves"><a class="viewcode-back" href="../../environment.html#commonse.environment.LinearWaves">[docs]</a><span class="k">class</span> <span class="nc">LinearWaves</span><span class="p">(</span><span class="n">WaveBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;linear (Airy) wave theory&quot;&quot;&quot;</span>
+
+    <span class="c"># variables</span>
+    <span class="n">Uc</span> <span class="o">=</span> <span class="n">Float</span><span class="p">(</span><span class="n">iotype</span><span class="o">=</span><span class="s">&#39;in&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s">&#39;m/s&#39;</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s">&#39;mean current speed&#39;</span><span class="p">)</span>
+
+    <span class="c"># parameters</span>
+    <span class="n">z_surface</span> <span class="o">=</span> <span class="n">Float</span><span class="p">(</span><span class="n">iotype</span><span class="o">=</span><span class="s">&#39;in&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s">&#39;m&#39;</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s">&#39;vertical location of water surface&#39;</span><span class="p">)</span>
+    <span class="n">hs</span> <span class="o">=</span> <span class="n">Float</span><span class="p">(</span><span class="n">iotype</span><span class="o">=</span><span class="s">&#39;in&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s">&#39;m&#39;</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s">&#39;significant wave height (crest-to-trough)&#39;</span><span class="p">)</span>
+    <span class="n">T</span> <span class="o">=</span> <span class="n">Float</span><span class="p">(</span><span class="n">iotype</span><span class="o">=</span><span class="s">&#39;in&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s">&#39;s&#39;</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s">&#39;period of waves&#39;</span><span class="p">)</span>
+    <span class="n">z_floor</span> <span class="o">=</span> <span class="n">Float</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">iotype</span><span class="o">=</span><span class="s">&#39;in&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s">&#39;m&#39;</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s">&#39;vertical location of sea floor&#39;</span><span class="p">)</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">Float</span><span class="p">(</span><span class="mf">9.81</span><span class="p">,</span> <span class="n">iotype</span><span class="o">=</span><span class="s">&#39;in&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s">&#39;m/s**2&#39;</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s">&#39;acceleration of gravity&#39;</span><span class="p">)</span>
+    <span class="n">betaWave</span> <span class="o">=</span> <span class="n">Float</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">iotype</span><span class="o">=</span><span class="s">&#39;in&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s">&#39;deg&#39;</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s">&#39;wave angle relative to inertial coordinate system&#39;</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="c"># water depth</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">z_surface</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">z_floor</span>
+
+        <span class="c"># design wave height</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="mf">1.1</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">hs</span>
+
+        <span class="c"># circular frequency</span>
+        <span class="n">omega</span> <span class="o">=</span> <span class="mf">2.0</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span>
+
+        <span class="c"># compute wave number from dispersion relationship</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="n">brentq</span><span class="p">(</span><span class="k">lambda</span> <span class="n">k</span><span class="p">:</span> <span class="n">omega</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="o">*</span><span class="n">k</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">tanh</span><span class="p">(</span><span class="n">d</span><span class="o">*</span><span class="n">k</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="o">*</span><span class="n">omega</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="p">)</span>
+
+        <span class="c"># zero at surface</span>
+        <span class="n">z_rel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">z_surface</span>
+
+        <span class="c"># maximum velocity</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">U</span> <span class="o">=</span> <span class="n">h</span><span class="o">/</span><span class="mf">2.0</span><span class="o">*</span><span class="n">omega</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cosh</span><span class="p">(</span><span class="n">k</span><span class="o">*</span><span class="p">(</span><span class="n">z_rel</span> <span class="o">+</span> <span class="n">d</span><span class="p">))</span><span class="o">/</span><span class="n">math</span><span class="o">.</span><span class="n">sinh</span><span class="p">(</span><span class="n">k</span><span class="o">*</span><span class="n">d</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">Uc</span>
+
+        <span class="c"># check heights</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">U</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">z_floor</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">z_surface</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c"># acceleration</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">A</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">U</span> <span class="o">*</span> <span class="n">omega</span>
+
+        <span class="c"># angles</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">beta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">betaWave</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+
+        <span class="c"># derivatives</span>
+        <span class="n">dU_dz</span> <span class="o">=</span> <span class="n">h</span><span class="o">/</span><span class="mf">2.0</span><span class="o">*</span><span class="n">omega</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sinh</span><span class="p">(</span><span class="n">k</span><span class="o">*</span><span class="p">(</span><span class="n">z_rel</span> <span class="o">+</span> <span class="n">d</span><span class="p">))</span><span class="o">/</span><span class="n">math</span><span class="o">.</span><span class="n">sinh</span><span class="p">(</span><span class="n">k</span><span class="o">*</span><span class="n">d</span><span class="p">)</span><span class="o">*</span><span class="n">k</span>
+        <span class="n">dU_dUc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">z_floor</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">z_surface</span><span class="p">)</span>
+        <span class="n">dU_dz</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">dU_dUc</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">dA_dz</span> <span class="o">=</span> <span class="n">omega</span><span class="o">*</span><span class="n">dU_dz</span>
+        <span class="n">dA_dUc</span> <span class="o">=</span> <span class="n">omega</span><span class="o">*</span><span class="n">dU_dUc</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">J</span> <span class="o">=</span> <span class="n">vstack</span><span class="p">([</span><span class="n">hstack</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">dU_dz</span><span class="p">),</span> <span class="n">dU_dUc</span><span class="p">]),</span> <span class="n">hstack</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">dA_dz</span><span class="p">),</span> <span class="n">dA_dUc</span><span class="p">])])</span>
+
+
+    <span class="k">def</span> <span class="nf">list_deriv_vars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">inputs</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;z&#39;</span><span class="p">,</span> <span class="s">&#39;Uc&#39;</span><span class="p">)</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;U&#39;</span><span class="p">,</span> <span class="s">&#39;A&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span>
+
+
+    <span class="k">def</span> <span class="nf">provideJ</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">J</span>
+
+</div>
+<div class="viewcode-block" id="TowerSoil"><a class="viewcode-back" href="../../environment.html#commonse.environment.TowerSoil">[docs]</a><span class="k">class</span> <span class="nc">TowerSoil</span><span class="p">(</span><span class="n">SoilBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;textbook soil stiffness method&quot;&quot;&quot;</span>
+
+    <span class="c"># variable</span>
+    <span class="n">r0</span> <span class="o">=</span> <span class="n">Float</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">iotype</span><span class="o">=</span><span class="s">&#39;in&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s">&#39;m&#39;</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s">&#39;radius of base of tower&#39;</span><span class="p">)</span>
+    <span class="n">depth</span> <span class="o">=</span> <span class="n">Float</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">iotype</span><span class="o">=</span><span class="s">&#39;in&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s">&#39;m&#39;</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s">&#39;depth of foundation in the soil&#39;</span><span class="p">)</span>
+
+    <span class="c"># parameter</span>
+    <span class="n">G</span> <span class="o">=</span> <span class="n">Float</span><span class="p">(</span><span class="mf">140e6</span><span class="p">,</span> <span class="n">iotype</span><span class="o">=</span><span class="s">&#39;in&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s">&#39;Pa&#39;</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s">&#39;shear modulus of soil&#39;</span><span class="p">)</span>
+    <span class="n">nu</span> <span class="o">=</span> <span class="n">Float</span><span class="p">(</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">iotype</span><span class="o">=</span><span class="s">&#39;in&#39;</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s">&#39;Poisson&#39;&#39;s ratio of soil&#39;</span><span class="p">)</span>
+    <span class="n">rigid</span> <span class="o">=</span> <span class="n">Array</span><span class="p">(</span><span class="n">iotype</span><span class="o">=</span><span class="s">&#39;in&#39;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">bool</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s">&#39;directions that should be considered infinitely rigid</span><span class="se">\</span>
+<span class="s">        order is x, theta_x, y, theta_y, z, theta_z&#39;</span><span class="p">)</span>
+
+    <span class="n">missing_deriv_policy</span> <span class="o">=</span> <span class="s">&#39;assume_zero&#39;</span>
+
+
+    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">G</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">G</span>
+        <span class="n">nu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nu</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">depth</span>
+        <span class="n">r0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">r0</span>
+
+        <span class="c"># vertical</span>
+        <span class="n">eta</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">+</span> <span class="mf">0.6</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">nu</span><span class="p">)</span><span class="o">*</span><span class="n">h</span><span class="o">/</span><span class="n">r0</span>
+        <span class="n">k_z</span> <span class="o">=</span> <span class="mi">4</span><span class="o">*</span><span class="n">G</span><span class="o">*</span><span class="n">r0</span><span class="o">*</span><span class="n">eta</span><span class="o">/</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">nu</span><span class="p">)</span>
+
+        <span class="c"># horizontal</span>
+        <span class="n">eta</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">+</span> <span class="mf">0.55</span><span class="o">*</span><span class="p">(</span><span class="mf">2.0</span><span class="o">-</span><span class="n">nu</span><span class="p">)</span><span class="o">*</span><span class="n">h</span><span class="o">/</span><span class="n">r0</span>
+        <span class="n">k_x</span> <span class="o">=</span> <span class="mf">32.0</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">nu</span><span class="p">)</span><span class="o">*</span><span class="n">G</span><span class="o">*</span><span class="n">r0</span><span class="o">*</span><span class="n">eta</span><span class="o">/</span><span class="p">(</span><span class="mf">7.0</span><span class="o">-</span><span class="mf">8.0</span><span class="o">*</span><span class="n">nu</span><span class="p">)</span>
+
+        <span class="c"># rocking</span>
+        <span class="n">eta</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">+</span> <span class="mf">1.2</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">nu</span><span class="p">)</span><span class="o">*</span><span class="n">h</span><span class="o">/</span><span class="n">r0</span> <span class="o">+</span> <span class="mf">0.2</span><span class="o">*</span><span class="p">(</span><span class="mf">2.0</span><span class="o">-</span><span class="n">nu</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">h</span><span class="o">/</span><span class="n">r0</span><span class="p">)</span><span class="o">**</span><span class="mi">3</span>
+        <span class="n">k_thetax</span> <span class="o">=</span> <span class="mf">8.0</span><span class="o">*</span><span class="n">G</span><span class="o">*</span><span class="n">r0</span><span class="o">**</span><span class="mi">3</span><span class="o">*</span><span class="n">eta</span><span class="o">/</span><span class="p">(</span><span class="mf">3.0</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">nu</span><span class="p">))</span>
+
+        <span class="c"># torsional</span>
+        <span class="n">k_phi</span> <span class="o">=</span> <span class="mf">16.0</span><span class="o">*</span><span class="n">G</span><span class="o">*</span><span class="n">r0</span><span class="o">**</span><span class="mi">3</span><span class="o">/</span><span class="mf">3.0</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">k_x</span><span class="p">,</span> <span class="n">k_thetax</span><span class="p">,</span> <span class="n">k_x</span><span class="p">,</span> <span class="n">k_thetax</span><span class="p">,</span> <span class="n">k_z</span><span class="p">,</span> <span class="n">k_phi</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">rigid</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s">&#39;inf&#39;</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">list_deriv_vars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">inputs</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;r0&#39;</span><span class="p">,</span> <span class="s">&#39;depth&#39;</span><span class="p">)</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;k&#39;</span><span class="p">,)</span>
+
+        <span class="k">return</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span>
+
+
+    <span class="k">def</span> <span class="nf">provideJ</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">G</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">G</span>
+        <span class="n">nu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nu</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">depth</span>
+        <span class="n">r0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">r0</span>
+
+        <span class="c"># vertical</span>
+        <span class="n">eta</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">+</span> <span class="mf">0.6</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">nu</span><span class="p">)</span><span class="o">*</span><span class="n">h</span><span class="o">/</span><span class="n">r0</span>
+        <span class="n">deta_dr0</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.6</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">nu</span><span class="p">)</span><span class="o">*</span><span class="n">h</span><span class="o">/</span><span class="n">r0</span><span class="o">**</span><span class="mi">2</span>
+        <span class="n">dkz_dr0</span> <span class="o">=</span> <span class="mi">4</span><span class="o">*</span><span class="n">G</span><span class="o">/</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">nu</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">eta</span> <span class="o">+</span> <span class="n">r0</span><span class="o">*</span><span class="n">deta_dr0</span><span class="p">)</span>
+
+        <span class="n">deta_dh</span> <span class="o">=</span> <span class="mf">0.6</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">nu</span><span class="p">)</span><span class="o">/</span><span class="n">r0</span>
+        <span class="n">dkz_dh</span> <span class="o">=</span> <span class="mi">4</span><span class="o">*</span><span class="n">G</span><span class="o">*</span><span class="n">r0</span><span class="o">/</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">nu</span><span class="p">)</span><span class="o">*</span><span class="n">deta_dh</span>
+
+        <span class="c"># horizontal</span>
+        <span class="n">eta</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">+</span> <span class="mf">0.55</span><span class="o">*</span><span class="p">(</span><span class="mf">2.0</span><span class="o">-</span><span class="n">nu</span><span class="p">)</span><span class="o">*</span><span class="n">h</span><span class="o">/</span><span class="n">r0</span>
+        <span class="n">deta_dr0</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.55</span><span class="o">*</span><span class="p">(</span><span class="mf">2.0</span><span class="o">-</span><span class="n">nu</span><span class="p">)</span><span class="o">*</span><span class="n">h</span><span class="o">/</span><span class="n">r0</span><span class="o">**</span><span class="mi">2</span>
+        <span class="n">dkx_dr0</span> <span class="o">=</span> <span class="mf">32.0</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">nu</span><span class="p">)</span><span class="o">*</span><span class="n">G</span><span class="o">/</span><span class="p">(</span><span class="mf">7.0</span><span class="o">-</span><span class="mf">8.0</span><span class="o">*</span><span class="n">nu</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">eta</span> <span class="o">+</span> <span class="n">r0</span><span class="o">*</span><span class="n">deta_dr0</span><span class="p">)</span>
+
+        <span class="n">deta_dh</span> <span class="o">=</span> <span class="mf">0.55</span><span class="o">*</span><span class="p">(</span><span class="mf">2.0</span><span class="o">-</span><span class="n">nu</span><span class="p">)</span><span class="o">/</span><span class="n">r0</span>
+        <span class="n">dkx_dh</span> <span class="o">=</span> <span class="mf">32.0</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">nu</span><span class="p">)</span><span class="o">*</span><span class="n">G</span><span class="o">*</span><span class="n">r0</span><span class="o">/</span><span class="p">(</span><span class="mf">7.0</span><span class="o">-</span><span class="mf">8.0</span><span class="o">*</span><span class="n">nu</span><span class="p">)</span><span class="o">*</span><span class="n">deta_dh</span>
+
+        <span class="c"># rocking</span>
+        <span class="n">eta</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">+</span> <span class="mf">1.2</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">nu</span><span class="p">)</span><span class="o">*</span><span class="n">h</span><span class="o">/</span><span class="n">r0</span> <span class="o">+</span> <span class="mf">0.2</span><span class="o">*</span><span class="p">(</span><span class="mf">2.0</span><span class="o">-</span><span class="n">nu</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">h</span><span class="o">/</span><span class="n">r0</span><span class="p">)</span><span class="o">**</span><span class="mi">3</span>
+        <span class="n">deta_dr0</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.2</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">nu</span><span class="p">)</span><span class="o">*</span><span class="n">h</span><span class="o">/</span><span class="n">r0</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mi">3</span><span class="o">*</span><span class="mf">0.2</span><span class="o">*</span><span class="p">(</span><span class="mf">2.0</span><span class="o">-</span><span class="n">nu</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">h</span><span class="o">/</span><span class="n">r0</span><span class="p">)</span><span class="o">**</span><span class="mi">3</span><span class="o">/</span><span class="n">r0</span>
+        <span class="n">dkthetax_dr0</span> <span class="o">=</span> <span class="mf">8.0</span><span class="o">*</span><span class="n">G</span><span class="o">/</span><span class="p">(</span><span class="mf">3.0</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">nu</span><span class="p">))</span><span class="o">*</span><span class="p">(</span><span class="mi">3</span><span class="o">*</span><span class="n">r0</span><span class="o">**</span><span class="mi">2</span><span class="o">*</span><span class="n">eta</span> <span class="o">+</span> <span class="n">r0</span><span class="o">**</span><span class="mi">3</span><span class="o">*</span><span class="n">deta_dr0</span><span class="p">)</span>
+
+        <span class="n">deta_dh</span> <span class="o">=</span> <span class="mf">1.2</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">nu</span><span class="p">)</span><span class="o">/</span><span class="n">r0</span> <span class="o">+</span> <span class="mi">3</span><span class="o">*</span><span class="mf">0.2</span><span class="o">*</span><span class="p">(</span><span class="mf">2.0</span><span class="o">-</span><span class="n">nu</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">/</span><span class="n">r0</span><span class="p">)</span><span class="o">**</span><span class="mi">3</span><span class="o">*</span><span class="n">h</span><span class="o">**</span><span class="mi">2</span>
+        <span class="n">dkthetax_dh</span> <span class="o">=</span> <span class="mf">8.0</span><span class="o">*</span><span class="n">G</span><span class="o">*</span><span class="n">r0</span><span class="o">**</span><span class="mi">3</span><span class="o">/</span><span class="p">(</span><span class="mf">3.0</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">nu</span><span class="p">))</span><span class="o">*</span><span class="n">deta_dh</span>
+
+        <span class="c"># torsional</span>
+        <span class="n">dkphi_dr0</span> <span class="o">=</span> <span class="mf">16.0</span><span class="o">*</span><span class="n">G</span><span class="o">*</span><span class="mi">3</span><span class="o">*</span><span class="n">r0</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="mf">3.0</span>
+        <span class="n">dkphi_dh</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+        <span class="n">dk_dr0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">dkx_dr0</span><span class="p">,</span> <span class="n">dkthetax_dr0</span><span class="p">,</span> <span class="n">dkx_dr0</span><span class="p">,</span> <span class="n">dkthetax_dr0</span><span class="p">,</span> <span class="n">dkz_dr0</span><span class="p">,</span> <span class="n">dkphi_dr0</span><span class="p">])</span>
+        <span class="n">dk_dr0</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">rigid</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">dk_dh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">dkx_dh</span><span class="p">,</span> <span class="n">dkthetax_dh</span><span class="p">,</span> <span class="n">dkx_dh</span><span class="p">,</span> <span class="n">dkthetax_dh</span><span class="p">,</span> <span class="n">dkz_dh</span><span class="p">,</span> <span class="n">dkphi_dh</span><span class="p">])</span>
+        <span class="n">dk_dh</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">rigid</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+        <span class="n">J</span> <span class="o">=</span> <span class="n">hstack</span><span class="p">((</span><span class="n">dk_dr0</span><span class="p">,</span> <span class="n">dk_dh</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">J</span>
+
+
+
+
+
+</div>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">LogWind</span><span class="p">()</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">Uref</span> <span class="o">=</span> <span class="mf">10.0</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">zref</span> <span class="o">=</span> <span class="mf">100.0</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">z0</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">shearExp</span> <span class="o">=</span> <span class="mf">0.2</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">betaWind</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+    <span class="n">p</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+
+    <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">U</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li><a href="../../index.html">CommonSE 0.1.0 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, NREL.
+      Last updated on Sep 24, 2014.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>
