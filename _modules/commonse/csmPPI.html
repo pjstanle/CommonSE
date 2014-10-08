@@ -165,7 +165,7 @@
         
         <span class="c">#self.escData = [None] * 37</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">escData</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c"># try a dictionary</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">tblfile</span> <span class="o">=</span> <span class="s">&#39;static\PPI_Tables.txt&#39;</span>   <span class="c">#TODO: temporary solution - should update so it can locate it from dictionary etc</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tblfile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&#39;static&#39;</span><span class="p">,</span><span class="s">&#39;PPI_Tables.txt&#39;</span><span class="p">)</span>   <span class="c">#TODO: temporary solution - should update so it can locate it from dictionary etc</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ppitbls</span> <span class="o">=</span> <span class="p">{}</span> <span class="c"># dictionary of PPITbl objects </span>
         <span class="bp">self</span><span class="o">.</span><span class="n">yrs_gdp</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ppi_gdp</span> <span class="o">=</span> <span class="p">[]</span>
@@ -177,7 +177,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">debug</span> <span class="o">=</span> <span class="n">debug</span>
 
         <span class="n">thisdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">__file__</span><span class="p">))</span>   
-        <span class="n">fullfile</span> <span class="o">=</span> <span class="n">thisdir</span> <span class="o">+</span> <span class="s">&#39;</span><span class="se">\\</span><span class="s">&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">tblfile</span>       
+        <span class="n">fullfile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">thisdir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tblfile</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">infile</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">fullfile</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">)</span> <span class="c">#infile = open(self.tblfile)</span>
         <span class="k">except</span><span class="p">:</span>
@@ -372,7 +372,7 @@
     </div>
     <div class="footer">
         &copy; Copyright 2014, NREL.
-      Last updated on Sep 24, 2014.
+      Last updated on Oct 07, 2014.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
   </body>

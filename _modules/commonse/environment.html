@@ -97,6 +97,9 @@
     <span class="n">U</span> <span class="o">=</span> <span class="n">Array</span><span class="p">(</span><span class="n">iotype</span><span class="o">=</span><span class="s">&#39;out&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s">&#39;m/s&#39;</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s">&#39;magnitude of wave speed at each z location&#39;</span><span class="p">)</span>
     <span class="n">A</span> <span class="o">=</span> <span class="n">Array</span><span class="p">(</span><span class="n">iotype</span><span class="o">=</span><span class="s">&#39;out&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s">&#39;m/s**2&#39;</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s">&#39;magnitude of wave acceleration at each z location&#39;</span><span class="p">)</span>
     <span class="n">beta</span> <span class="o">=</span> <span class="n">Array</span><span class="p">(</span><span class="n">iotype</span><span class="o">=</span><span class="s">&#39;out&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s">&#39;deg&#39;</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s">&#39;corresponding wave angles relative to inertial coordinate system&#39;</span><span class="p">)</span>
+    <span class="n">U0</span> <span class="o">=</span> <span class="n">Float</span><span class="p">(</span><span class="n">iotype</span><span class="o">=</span><span class="s">&#39;out&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s">&#39;m/s&#39;</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s">&#39;magnitude of wave speed at z=MSL&#39;</span><span class="p">)</span>
+    <span class="n">A0</span> <span class="o">=</span> <span class="n">Float</span><span class="p">(</span><span class="n">iotype</span><span class="o">=</span><span class="s">&#39;out&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s">&#39;m/s**2&#39;</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s">&#39;magnitude of wave acceleration at z=MSL&#39;</span><span class="p">)</span>
+    <span class="n">beta0</span> <span class="o">=</span> <span class="n">Float</span><span class="p">(</span><span class="n">iotype</span><span class="o">=</span><span class="s">&#39;out&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s">&#39;deg&#39;</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s">&#39;corresponding wave angles relative to inertial coordinate system at z=MSL&#39;</span><span class="p">)</span>
 
     <span class="n">missing_deriv_policy</span> <span class="o">=</span> <span class="s">&#39;assume_zero&#39;</span>
 
@@ -106,6 +109,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">U</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">beta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">U0</span> <span class="o">=</span> <span class="mf">0.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">A0</span> <span class="o">=</span> <span class="mf">0.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">beta0</span> <span class="o">=</span> <span class="mf">0.</span>
+
 
 </div>
 <div class="viewcode-block" id="SoilBase"><a class="viewcode-back" href="../../environment.html#commonse.environment.SoilBase">[docs]</a><span class="k">class</span> <span class="nc">SoilBase</span><span class="p">(</span><span class="n">Component</span><span class="p">):</span>
@@ -116,8 +123,6 @@
 <span class="s">        ``float(&#39;&#39;inf&#39;&#39;)``. order: (x, theta_x, y, theta_y, z, theta_z)&#39;</span><span class="p">)</span>
 
     <span class="n">missing_deriv_policy</span> <span class="o">=</span> <span class="s">&#39;assume_zero&#39;</span>  <span class="c"># TODO: for now OpenMDAO issue</span>
-
-
 
 
 <span class="c"># -----------------------</span>
@@ -311,15 +316,17 @@
 
         <span class="c"># maximum velocity</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">U</span> <span class="o">=</span> <span class="n">h</span><span class="o">/</span><span class="mf">2.0</span><span class="o">*</span><span class="n">omega</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cosh</span><span class="p">(</span><span class="n">k</span><span class="o">*</span><span class="p">(</span><span class="n">z_rel</span> <span class="o">+</span> <span class="n">d</span><span class="p">))</span><span class="o">/</span><span class="n">math</span><span class="o">.</span><span class="n">sinh</span><span class="p">(</span><span class="n">k</span><span class="o">*</span><span class="n">d</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">Uc</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">U0</span> <span class="o">=</span> <span class="n">h</span><span class="o">/</span><span class="mf">2.0</span><span class="o">*</span><span class="n">omega</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cosh</span><span class="p">(</span><span class="n">k</span><span class="o">*</span><span class="p">(</span><span class="mf">0.</span> <span class="o">+</span> <span class="n">d</span><span class="p">))</span><span class="o">/</span><span class="n">math</span><span class="o">.</span><span class="n">sinh</span><span class="p">(</span><span class="n">k</span><span class="o">*</span><span class="n">d</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">Uc</span>
 
         <span class="c"># check heights</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">U</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">z_floor</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">z_surface</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">U</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">z_floor</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">z_surface</span><span class="p">)]</span> <span class="o">=</span> <span class="mf">0.</span>
 
         <span class="c"># acceleration</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">A</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">U</span> <span class="o">*</span> <span class="n">omega</span>
-
+        <span class="bp">self</span><span class="o">.</span><span class="n">A</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">U</span> <span class="o">*</span> <span class="n">omega</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">A0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">U0</span> <span class="o">*</span> <span class="n">omega</span>
         <span class="c"># angles</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">beta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">betaWave</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">beta0</span> <span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">betaWave</span>
 
         <span class="c"># derivatives</span>
         <span class="n">dU_dz</span> <span class="o">=</span> <span class="n">h</span><span class="o">/</span><span class="mf">2.0</span><span class="o">*</span><span class="n">omega</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sinh</span><span class="p">(</span><span class="n">k</span><span class="o">*</span><span class="p">(</span><span class="n">z_rel</span> <span class="o">+</span> <span class="n">d</span><span class="p">))</span><span class="o">/</span><span class="n">math</span><span class="o">.</span><span class="n">sinh</span><span class="p">(</span><span class="n">k</span><span class="o">*</span><span class="n">d</span><span class="p">)</span><span class="o">*</span><span class="n">k</span>
@@ -336,7 +343,7 @@
     <span class="k">def</span> <span class="nf">list_deriv_vars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
         <span class="n">inputs</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;z&#39;</span><span class="p">,</span> <span class="s">&#39;Uc&#39;</span><span class="p">)</span>
-        <span class="n">outputs</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;U&#39;</span><span class="p">,</span> <span class="s">&#39;A&#39;</span><span class="p">)</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;U&#39;</span><span class="p">,</span> <span class="s">&#39;A&#39;</span><span class="p">,</span> <span class="s">&#39;U0&#39;</span><span class="p">,</span> <span class="s">&#39;A0&#39;</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span>
 
@@ -495,7 +502,7 @@
     </div>
     <div class="footer">
         &copy; Copyright 2014, NREL.
-      Last updated on Sep 24, 2014.
+      Last updated on Oct 07, 2014.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
   </body>
