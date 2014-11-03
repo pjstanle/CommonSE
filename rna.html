@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>3. PPI Indices &mdash; CommonSE 0.1.1 documentation</title>
+    <title>4. Rotor-Nacelle-Assembly &mdash; CommonSE 0.1.1 documentation</title>
     
     <link rel="stylesheet" href="_static/nrel.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -25,8 +25,8 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="top" title="CommonSE 0.1.1 documentation" href="index.html" />
-    <link rel="next" title="3.1.1. commonse.csmPPI.PPI" href="generated/commonse.csmPPI.PPI.html" />
-    <link rel="prev" title="2. Environment" href="environment.html" /> 
+    <link rel="next" title="4.1.1. commonse.rna.RNAMass" href="generated/commonse.rna.RNAMass.html" />
+    <link rel="prev" title="3.1.3. commonse.csmPPI.Escalator" href="generated/commonse.csmPPI.Escalator.html" /> 
   </head>
   <body>
     <div class="related">
@@ -36,10 +36,10 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="generated/commonse.csmPPI.PPI.html" title="3.1.1. commonse.csmPPI.PPI"
+          <a href="generated/commonse.rna.RNAMass.html" title="4.1.1. commonse.rna.RNAMass"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="environment.html" title="2. Environment"
+          <a href="generated/commonse.csmPPI.Escalator.html" title="3.1.3. commonse.csmPPI.Escalator"
              accesskey="P">previous</a> |</li>
         <li><a href="index.html">CommonSE 0.1.1 documentation</a> &raquo;</li> 
       </ul>
@@ -50,26 +50,23 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="ppi-indices">
-<h1>3. PPI Indices<a class="headerlink" href="#ppi-indices" title="Permalink to this headline">¶</a></h1>
-<p>This module addresses modules for PPI indices used across the WISDEM model set.</p>
-<div class="section" id="csmppi">
-<h2>3.1. csmPPI<a class="headerlink" href="#csmppi" title="Permalink to this headline">¶</a></h2>
-<p>PPI indicies from NREL Cost and Scaling Model used in several WISDEM modules.</p>
+  <div class="section" id="rotor-nacelle-assembly">
+<h1>4. Rotor-Nacelle-Assembly<a class="headerlink" href="#rotor-nacelle-assembly" title="Permalink to this headline">¶</a></h1>
+<p>This module includes an aggregator for rotor-nacelle-assembly mass properties and also a set of rotor loads tools for inputs into tower and sub-structure models.</p>
+<div class="section" id="rna">
+<h2>4.1. rna<a class="headerlink" href="#rna" title="Permalink to this headline">¶</a></h2>
+<p>RNA mass properties and rotor loads</p>
 <table border="1" class="longtable docutils">
 <colgroup>
 <col width="10%" />
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="generated/commonse.csmPPI.PPI.html#commonse.csmPPI.PPI" title="commonse.csmPPI.PPI"><tt class="xref py py-obj docutils literal"><span class="pre">PPI</span></tt></a>(ref_yr,&nbsp;ref_mon,&nbsp;curr_yr,&nbsp;curr_mon[,&nbsp;debug])</td>
-<td>Initialize the PPI class for calculation of PPI indices given a referene year/month and current year/month.</td>
+<tr class="row-odd"><td><a class="reference internal" href="generated/commonse.rna.RNAMass.html#commonse.rna.RNAMass" title="commonse.rna.RNAMass"><tt class="xref py py-obj docutils literal"><span class="pre">RNAMass</span></tt></a>()</td>
+<td></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="generated/commonse.csmPPI.PPITbl.html#commonse.csmPPI.PPITbl" title="commonse.csmPPI.PPITbl"><tt class="xref py py-obj docutils literal"><span class="pre">PPITbl</span></tt></a>([code,&nbsp;name])</td>
-<td>a PPITbl object represents a cost table</td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="generated/commonse.csmPPI.Escalator.html#commonse.csmPPI.Escalator" title="commonse.csmPPI.Escalator"><tt class="xref py py-obj docutils literal"><span class="pre">Escalator</span></tt></a>(x)</td>
-<td>x is a list</td>
+<tr class="row-even"><td><a class="reference internal" href="generated/commonse.rna.RotorLoads.html#commonse.rna.RotorLoads" title="commonse.rna.RotorLoads"><tt class="xref py py-obj docutils literal"><span class="pre">RotorLoads</span></tt></a>()</td>
+<td></td>
 </tr>
 </tbody>
 </table>
@@ -84,21 +81,21 @@
         <div class="sphinxsidebarwrapper">
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">3. PPI Indices</a><ul>
-<li><a class="reference internal" href="#csmppi">3.1. csmPPI</a></li>
+<li><a class="reference internal" href="#">4. Rotor-Nacelle-Assembly</a><ul>
+<li><a class="reference internal" href="#rna">4.1. rna</a></li>
 </ul>
 </li>
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="environment.html"
-                        title="previous chapter">2. Environment</a></p>
+  <p class="topless"><a href="generated/commonse.csmPPI.Escalator.html"
+                        title="previous chapter">3.1.3. commonse.csmPPI.Escalator</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="generated/commonse.csmPPI.PPI.html"
-                        title="next chapter">3.1.1. commonse.csmPPI.PPI</a></p>
+  <p class="topless"><a href="generated/commonse.rna.RNAMass.html"
+                        title="next chapter">4.1.1. commonse.rna.RNAMass</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
-    <li><a href="_sources/ppi.txt"
+    <li><a href="_sources/rna.txt"
            rel="nofollow">Show Source</a></li>
   </ul>
 <div id="searchbox" style="display: none">
@@ -125,10 +122,10 @@
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="generated/commonse.csmPPI.PPI.html" title="3.1.1. commonse.csmPPI.PPI"
+          <a href="generated/commonse.rna.RNAMass.html" title="4.1.1. commonse.rna.RNAMass"
              >next</a> |</li>
         <li class="right" >
-          <a href="environment.html" title="2. Environment"
+          <a href="generated/commonse.csmPPI.Escalator.html" title="3.1.3. commonse.csmPPI.Escalator"
              >previous</a> |</li>
         <li><a href="index.html">CommonSE 0.1.1 documentation</a> &raquo;</li> 
       </ul>

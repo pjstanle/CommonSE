@@ -1,0 +1,467 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>4.1.1. commonse.rna.RNAMass &mdash; CommonSE 0.1.1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/nrel.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="CommonSE 0.1.1 documentation" href="../index.html" />
+    <link rel="up" title="4. Rotor-Nacelle-Assembly" href="../rna.html" />
+    <link rel="next" title="4.1.2. commonse.rna.RotorLoads" href="commonse.rna.RotorLoads.html" />
+    <link rel="prev" title="4.1.2. commonse.rna.RotorLoads" href="commonse.rna.RotorLoads.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="commonse.rna.RotorLoads.html" title="4.1.2. commonse.rna.RotorLoads"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="commonse.rna.RotorLoads.html" title="4.1.2. commonse.rna.RotorLoads"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">CommonSE 0.1.1 documentation</a> &raquo;</li>
+          <li><a href="../rna.html" accesskey="U">4. Rotor-Nacelle-Assembly</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="commonse-rna-rnamass">
+<h1>4.1.1. commonse.rna.RNAMass<a class="headerlink" href="#commonse-rna-rnamass" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="commonse.rna.RNAMass">
+<em class="property">class </em><tt class="descclassname">commonse.rna.</tt><tt class="descname">RNAMass</tt><a class="reference internal" href="../_modules/commonse/rna.html#RNAMass"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commonse.rna.RNAMass" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="commonse.rna.RNAMass.__init__">
+<tt class="descname">__init__</tt><big>(</big><big>)</big><a class="headerlink" href="#commonse.rna.RNAMass.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#commonse.rna.RNAMass.__init__" title="commonse.rna.RNAMass.__init__"><tt class="xref py py-obj docutils literal"><span class="pre">__init__</span></tt></a>()</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">add</span></tt>(name,&nbsp;obj)</td>
+<td>Override of base class version to force call to <em>check_config</em> after any child containers are added.</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">add_class_trait</span></tt>(name,&nbsp;*trait)</td>
+<td>Overrides HasTraits definition of <em>add_class_trait</em> to try to keep from clobbering framework stuff.</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">add_trait</span></tt>(name,&nbsp;trait[,&nbsp;refresh])</td>
+<td>Overrides base definition of <em>add_trait</em> in order to force call to <em>check_config</em> prior to execution when new traits are added.</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">add_trait_category</span></tt>(category)</td>
+<td>Adds a trait category to a class.</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">add_trait_listener</span></tt>(object[,&nbsp;prefix])</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">all_trait_names</span></tt>()</td>
+<td>Returns the list of all trait names, including implicitly defined traits.</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">base_trait</span></tt>(name)</td>
+<td>Returns the base trait definition for a trait attribute.</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">build_trait</span></tt>(ref_name[,&nbsp;iotype,&nbsp;trait])</td>
+<td>Build a trait referring to <cite>ref_name</cite>.</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">calc_derivatives</span></tt>([first,&nbsp;second,&nbsp;savebase,&nbsp;...])</td>
+<td>Prepare for Fake Finite Difference runs by calculating all needed derivatives, and saving the current state as the baseline if requested.</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">check_config</span></tt>([strict])</td>
+<td>Verify that this component and all of its children are properly configured to execute.</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">check_gradient</span></tt>([inputs,&nbsp;outputs,&nbsp;stream,&nbsp;...])</td>
+<td>Compare the OpenMDAO-calculated gradient with one calculated by straight finite-difference.</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">check_path</span></tt>(path[,&nbsp;check_dir])</td>
+<td>Verify that the given path is a directory and is located within the allowed area (somewhere within the simulation root path).</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">checkpoint</span></tt>(outstream[,&nbsp;fmt])</td>
+<td>Save sufficient information for a restart.</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">class_default_traits_view</span></tt>()</td>
+<td>Returns the name of the default traits view for the class.</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">class_editable_traits</span></tt>()</td>
+<td>Returns an alphabetically sorted list of the names of non-event trait attributes associated with the current class.</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">class_trait_names</span></tt>(**metadata)</td>
+<td>Returns a list of the names of all trait attributes whose definitions match the set of <em>metadata</em> criteria specified.</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">class_trait_view</span></tt>([name,&nbsp;view_element])</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">class_trait_view_elements</span></tt>()</td>
+<td>Returns the ViewElements object associated with the class.</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">class_traits</span></tt>(**metadata)</td>
+<td>Returns a dictionary containing the definitions of all of the trait attributes of the class that match the set of <em>metadata</em> criteria.</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">clone_traits</span></tt>([traits,&nbsp;memo,&nbsp;copy])</td>
+<td>Clones a new object from this one, optionally copying only a specified set of traits.</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">config_changed</span></tt>([update_parent])</td>
+<td>Call this whenever the configuration of this Component changes, for example, children are added or removed.</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">configure</span></tt>()</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">configure_traits</span></tt>([filename,&nbsp;view,&nbsp;kind,&nbsp;...])</td>
+<td>Creates and displays a dialog box for editing values of trait attributes, as if it were a complete, self-contained GUI application.</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">contains</span></tt>(path)</td>
+<td>Return True if the child specified by the given dotted path name is contained in this Container.</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">copy</span></tt>()</td>
+<td>Returns a deep copy without deepcopying the parent.</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">copy_traits</span></tt>(other[,&nbsp;traits,&nbsp;memo,&nbsp;copy])</td>
+<td>Copies another object&#8217;s trait attributes into this one.</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">copyable_trait_names</span></tt>(**metadata)</td>
+<td>Returns the list of trait names to copy or clone by default.</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">cpath_updated</span></tt>()</td>
+<td>Calls the base class version of <em>cpath_updated()</em>, checks our directory for validity, and creates the directory if it doesn&#8217;t exist.</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">default_traits_view</span></tt>()</td>
+<td>Returns the name of the default traits view for the object&#8217;s class.</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">edit_traits</span></tt>([view,&nbsp;parent,&nbsp;kind,&nbsp;context,&nbsp;...])</td>
+<td>Displays a user interface window for editing trait attribute values.</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">editable_traits</span></tt>()</td>
+<td>Returns an alphabetically sorted list of the names of non-event trait attributes associated with the current object.</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">execute</span></tt>()</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">get</span></tt>(path[,&nbsp;index])</td>
+<td>Return the object specified by the given path, which may contain &#8216;.&#8217; characters.</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">get_abs_directory</span></tt>()</td>
+<td>Return absolute path of execution directory.</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">get_attr</span></tt>(path[,&nbsp;index])</td>
+<td>Same as the &#8216;get&#8217; method, except that the value will be copied if the variable has a &#8216;copy&#8217; metadata attribute that is not None.</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">get_attributes</span></tt>([io_only])</td>
+<td>Get attributes of component.</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">get_dyn_trait</span></tt>(pathname[,&nbsp;iotype,&nbsp;trait])</td>
+<td>Returns a trait if a trait with the given pathname exists, possibly creating it &#8220;on-the-fly&#8221; and adding its Container.</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">get_expr_depends</span></tt>()</td>
+<td>Return a list of tuples of the form (src_comp_name, dest_comp_name) for each dependency resulting from ExprEvaluators in this Component.</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">get_file_vars</span></tt>()</td>
+<td>Return list of (filevarname,filevarvalue,file trait) owned by this component.</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">get_iotype</span></tt>(name)</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">get_itername</span></tt>()</td>
+<td>Return current &#8216;iteration coordinates&#8217;.</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">get_metadata</span></tt>(traitpath[,&nbsp;metaname])</td>
+<td>Retrieve the metadata associated with the trait found using traitpath.</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">get_pathname</span></tt>([rel_to_scope])</td>
+<td>Return full path name to this container, relative to scope <em>rel_to_scope</em>.</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">get_req_default</span></tt>([self_required])</td>
+<td>Returns a list of all inputs that are required but still have their default value.</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">get_trait</span></tt>(name[,&nbsp;copy])</td>
+<td>Returns the trait indicated by name, or None if not found.</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">get_trait_typenames</span></tt>(pathname[,&nbsp;iotype])</td>
+<td>Return names of the &#8216;final&#8217; type (bypassing passthrough traits) for <cite>pathname</cite> using <tt class="xref py py-meth docutils literal"><span class="pre">get_dyn_trait()</span></tt>.</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">has_traits_interface</span></tt>(*interfaces)</td>
+<td>Returns whether the object implements a specified traits interface.</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">items</span></tt>([recurse])</td>
+<td>Return a list of tuples of the form (rel_pathname, obj) for each trait of this Container that matches the given metadata.</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">list_containers</span></tt>()</td>
+<td>Return a list of names of child Containers.</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">list_deriv_vars</span></tt>()</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">list_inputs</span></tt>()</td>
+<td>Return a list of names of input values.</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">list_outputs</span></tt>()</td>
+<td>Return a list of names of output values.</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">list_vars</span></tt>()</td>
+<td>Return a list of Variables in this Container.</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">load</span></tt>(instream[,&nbsp;fmt,&nbsp;package,&nbsp;...])</td>
+<td>Load object(s) from <cite>instream</cite>.</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">load_from_eggfile</span></tt>(filename[,&nbsp;observer,&nbsp;log])</td>
+<td>Extract files in egg to a subdirectory matching the saved object name and then load object graph state.</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">load_from_eggpkg</span></tt>(package[,&nbsp;entry_name,&nbsp;...])</td>
+<td>Load object graph state by invoking the given package entry point.</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">mimic</span></tt>(target)</td>
+<td>Initialize what we can from the given target object.</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">on_trait_change</span></tt>(handler[,&nbsp;name,&nbsp;remove,&nbsp;...])</td>
+<td>Causes the object to invoke a handler whenever a trait attribute matching a specified pattern is modified, or removes the association.</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">on_trait_event</span></tt>(handler[,&nbsp;name,&nbsp;remove,&nbsp;...])</td>
+<td>Causes the object to invoke a handler whenever a trait attribute matching a specified pattern is modified, or removes the association.</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">pop_dir</span></tt>()</td>
+<td>Return to previous directory saved by <tt class="xref py py-meth docutils literal"><span class="pre">push_dir()</span></tt>.</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">post_load</span></tt>()</td>
+<td>Perform any required operations after the model has been loaded.</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">pre_delete</span></tt>()</td>
+<td>Perform any required operations before the model is deleted.</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">print_traits</span></tt>([show_help])</td>
+<td>Prints the values of all explicitly-defined, non-event trait attributes on the current object, in an easily readable format.</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">provideJ</span></tt>()</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">publish_vars</span></tt>()</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">push_dir</span></tt>([directory])</td>
+<td>Change directory to dir, remembering the current directory for a later <tt class="xref py py-meth docutils literal"><span class="pre">pop_dir()</span></tt>.</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">raise_exception</span></tt>(msg[,&nbsp;exception_class])</td>
+<td>Raise an exception.</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">register_published_vars</span></tt>(names[,&nbsp;publish])</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">remove</span></tt>(name)</td>
+<td>Override of base class version to force call to <em>check_config</em> after any child containers are removed.</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">remove_trait</span></tt>(name)</td>
+<td>Overrides base definition of <em>remove_trait</em> in order to force call to <em>check_config</em> prior to execution when a trait is removed.</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">remove_trait_listener</span></tt>(object[,&nbsp;prefix])</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">rename</span></tt>(oldname,&nbsp;newname)</td>
+<td>Renames a child of this object from oldname to newname.</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">replace</span></tt>(target_name,&nbsp;newobj)</td>
+<td>Replace one object with another, attempting to mimic the replaced object as much as possible.</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">reraise_exception</span></tt>([msg,&nbsp;info])</td>
+<td>Re-raise an exception with updated message and original traceback.</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">reset_traits</span></tt>([traits])</td>
+<td>Resets some or all of an object&#8217;s trait attributes to their default values.</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">restart</span></tt>(instream)</td>
+<td>Restore state using a checkpoint file.</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">revert_to_defaults</span></tt>([recurse])</td>
+<td>Sets the values of all of the inputs to their default values.</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">run</span></tt>([ffd_order,&nbsp;case_uuid])</td>
+<td>Run this object.</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">save</span></tt>(outstream[,&nbsp;fmt,&nbsp;proto])</td>
+<td>Save the state of this object and its children to the given output stream.</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">save_to_egg</span></tt>(name,&nbsp;version[,&nbsp;py_dir,&nbsp;...])</td>
+<td>Save state and other files to an egg.</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">set</span></tt>(path,&nbsp;value[,&nbsp;index,&nbsp;force])</td>
+<td>Set the value of the Variable specified by the given path, which may contain &#8216;.&#8217; characters.</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">set_itername</span></tt>(itername)</td>
+<td>Set current &#8216;iteration coordinates&#8217;.</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">set_metadata</span></tt>(traitpath,&nbsp;metaname,&nbsp;value)</td>
+<td>Set the metadata associated with the trait found using traitpath.</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">set_trait_dispatch_handler</span></tt>(name,&nbsp;klass[,&nbsp;...])</td>
+<td>Sets a trait notification dispatch handler.</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">stop</span></tt>()</td>
+<td>Stop this component.</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">sync_trait</span></tt>(trait_name,&nbsp;object[,&nbsp;alias,&nbsp;...])</td>
+<td>Synchronizes the value of a trait attribute on this object with a trait attribute on another object.</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">trait</span></tt>(name[,&nbsp;force,&nbsp;copy])</td>
+<td>Returns the trait definition for the <em>name</em> trait attribute.</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">trait_context</span></tt>()</td>
+<td>Returns the default context to use for editing or configuring traits.</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">trait_get</span></tt>(*names,&nbsp;**metadata)</td>
+<td>Shortcut for getting object trait attributes.</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">trait_items_event</span></tt>(event_trait,name,items_event)</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">trait_monitor</span></tt>(handler[,&nbsp;remove])</td>
+<td>Adds or removes the specified <em>handler</em> from the list of active monitors.</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">trait_names</span></tt>(**metadata)</td>
+<td>Returns a list of the names of all trait attributes whose definitions match the set of <em>metadata</em> criteria specified.</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">trait_property_changed</span></tt>(...)</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">trait_set</span></tt>([trait_change_notify])</td>
+<td>Shortcut for setting object trait attributes.</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">trait_setq</span></tt>(**traits)</td>
+<td>Shortcut for setting object trait attributes.</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">trait_subclasses</span></tt>([all])</td>
+<td>Returns a list of the immediate (or all) subclasses of this class.</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">trait_view</span></tt>([name,&nbsp;view_element])</td>
+<td>Gets or sets a ViewElement associated with an object&#8217;s class.</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">trait_view_elements</span></tt>()</td>
+<td>Returns the ViewElements object associated with the object&#8217;s class.</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">trait_views</span></tt>([klass])</td>
+<td>Returns a list of the names of all view elements associated with the current object&#8217;s class.</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">traits</span></tt>(**metadata)</td>
+<td>Returns a dictionary containing the definitions of all of the trait attributes of this object that match the set of <em>metadata</em> criteria.</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">traits_init</span></tt>()</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">traits_inited</span></tt>([True])</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">validate_trait</span></tt>(name,&nbsp;value)</td>
+<td>Validates whether a value is legal for a trait.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">dir_context</span></tt></td>
+<td>The <tt class="xref py py-class docutils literal"><span class="pre">DirectoryContext</span></tt> for this component.</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">name</span></tt></td>
+<td>The name of this Container.</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">parent</span></tt></td>
+<td>The parent Container of this Container.</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">wrappers</span></tt></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="commonse.rna.RotorLoads.html"
+                        title="previous chapter">4.1.2. commonse.rna.RotorLoads</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="commonse.rna.RotorLoads.html"
+                        title="next chapter">4.1.2. commonse.rna.RotorLoads</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/generated/commonse.rna.RNAMass.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="commonse.rna.RotorLoads.html" title="4.1.2. commonse.rna.RotorLoads"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="commonse.rna.RotorLoads.html" title="4.1.2. commonse.rna.RotorLoads"
+             >previous</a> |</li>
+        <li><a href="../index.html">CommonSE 0.1.1 documentation</a> &raquo;</li>
+          <li><a href="../rna.html" >4. Rotor-Nacelle-Assembly</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, NREL.
+      Last updated on Nov 03, 2014.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

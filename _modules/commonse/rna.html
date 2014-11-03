@@ -1,0 +1,332 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>commonse.rna &mdash; CommonSE 0.1.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/nrel.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="CommonSE 0.1.1 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li><a href="../../index.html">CommonSE 0.1.1 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for commonse.rna</h1><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">openmdao.main.api</span> <span class="kn">import</span> <span class="n">VariableTree</span><span class="p">,</span> <span class="n">Component</span><span class="p">,</span> <span class="n">Assembly</span><span class="p">,</span> <span class="n">set_as_top</span>
+<span class="kn">from</span> <span class="nn">openmdao.main.datatypes.api</span> <span class="kn">import</span> <span class="n">Int</span><span class="p">,</span> <span class="n">Float</span><span class="p">,</span> <span class="n">Array</span><span class="p">,</span> <span class="n">VarTree</span><span class="p">,</span> <span class="n">Slot</span><span class="p">,</span><span class="n">Instance</span><span class="p">,</span> <span class="n">Bool</span>
+
+<span class="kn">from</span> <span class="nn">commonse.utilities</span> <span class="kn">import</span> <span class="n">hstack</span><span class="p">,</span> <span class="n">vstack</span>
+<span class="kn">from</span> <span class="nn">commonse.csystem</span> <span class="kn">import</span> <span class="n">DirectionVector</span>
+
+<div class="viewcode-block" id="RNAMass"><a class="viewcode-back" href="../../generated/commonse.rna.RNAMass.html#commonse.rna.RNAMass">[docs]</a><span class="k">class</span> <span class="nc">RNAMass</span><span class="p">(</span><span class="n">Component</span><span class="p">):</span>
+
+    <span class="c"># variables</span>
+    <span class="n">blades_mass</span> <span class="o">=</span> <span class="n">Float</span><span class="p">(</span><span class="n">iotype</span><span class="o">=</span><span class="s">&#39;in&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s">&#39;kg&#39;</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s">&#39;mass of all blade&#39;</span><span class="p">)</span>
+    <span class="n">hub_mass</span> <span class="o">=</span> <span class="n">Float</span><span class="p">(</span><span class="n">iotype</span><span class="o">=</span><span class="s">&#39;in&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s">&#39;kg&#39;</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s">&#39;mass of hub&#39;</span><span class="p">)</span>
+    <span class="n">nac_mass</span> <span class="o">=</span> <span class="n">Float</span><span class="p">(</span><span class="n">iotype</span><span class="o">=</span><span class="s">&#39;in&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s">&#39;kg&#39;</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s">&#39;mass of nacelle&#39;</span><span class="p">)</span>
+
+    <span class="n">hub_cm</span> <span class="o">=</span> <span class="n">Array</span><span class="p">(</span><span class="n">iotype</span><span class="o">=</span><span class="s">&#39;in&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s">&#39;m&#39;</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s">&#39;location of hub center of mass relative to tower top in yaw-aligned c.s.&#39;</span><span class="p">)</span>
+    <span class="n">nac_cm</span> <span class="o">=</span> <span class="n">Array</span><span class="p">(</span><span class="n">iotype</span><span class="o">=</span><span class="s">&#39;in&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s">&#39;m&#39;</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s">&#39;location of nacelle center of mass relative to tower top in yaw-aligned c.s.&#39;</span><span class="p">)</span>
+
+    <span class="c"># TODO: check on this???</span>
+    <span class="c"># order for all moments of inertia is (xx, yy, zz, xy, xz, yz) in the yaw-aligned coorinate system</span>
+    <span class="n">blades_I</span> <span class="o">=</span> <span class="n">Array</span><span class="p">(</span><span class="n">iotype</span><span class="o">=</span><span class="s">&#39;in&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s">&#39;kg*m**2&#39;</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s">&#39;mass moments of inertia of all blades about hub center&#39;</span><span class="p">)</span>
+    <span class="n">hub_I</span> <span class="o">=</span> <span class="n">Array</span><span class="p">(</span><span class="n">iotype</span><span class="o">=</span><span class="s">&#39;in&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s">&#39;kg*m**2&#39;</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s">&#39;mass moments of inertia of hub about its center of mass&#39;</span><span class="p">)</span>
+    <span class="n">nac_I</span> <span class="o">=</span> <span class="n">Array</span><span class="p">(</span><span class="n">iotype</span><span class="o">=</span><span class="s">&#39;in&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s">&#39;kg*m**2&#39;</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s">&#39;mass moments of inertia of nacelle about its center of mass&#39;</span><span class="p">)</span>
+
+    <span class="c"># outputs</span>
+    <span class="n">rna_mass</span> <span class="o">=</span> <span class="n">Float</span><span class="p">(</span><span class="n">iotype</span><span class="o">=</span><span class="s">&#39;out&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s">&#39;kg&#39;</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s">&#39;total mass of RNA&#39;</span><span class="p">)</span>
+    <span class="n">rna_cm</span> <span class="o">=</span> <span class="n">Array</span><span class="p">(</span><span class="n">iotype</span><span class="o">=</span><span class="s">&#39;out&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s">&#39;m&#39;</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s">&#39;location of RNA center of mass relative to tower top in yaw-aligned c.s.&#39;</span><span class="p">)</span>
+    <span class="n">rna_I_TT</span> <span class="o">=</span> <span class="n">Array</span><span class="p">(</span><span class="n">iotype</span><span class="o">=</span><span class="s">&#39;out&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s">&#39;kg*m**2&#39;</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s">&#39;mass moments of inertia of RNA about tower top in yaw-aligned coordinate system&#39;</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">_assembleI</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Ixx</span><span class="p">,</span> <span class="n">Iyy</span><span class="p">,</span> <span class="n">Izz</span><span class="p">,</span> <span class="n">Ixy</span><span class="p">,</span> <span class="n">Ixz</span><span class="p">,</span> <span class="n">Iyz</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">Ixx</span><span class="p">,</span> <span class="n">Ixy</span><span class="p">,</span> <span class="n">Ixz</span><span class="p">],</span> <span class="p">[</span><span class="n">Ixy</span><span class="p">,</span> <span class="n">Iyy</span><span class="p">,</span> <span class="n">Iyz</span><span class="p">],</span> <span class="p">[</span><span class="n">Ixz</span><span class="p">,</span> <span class="n">Iyz</span><span class="p">,</span> <span class="n">Izz</span><span class="p">]])</span>
+
+
+    <span class="k">def</span> <span class="nf">_unassembleI</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">I</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">I</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">I</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">I</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">I</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">I</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">I</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]])</span>
+
+
+    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">rotor_mass</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">blades_mass</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">hub_mass</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nac_mass</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nac_mass</span>
+
+        <span class="c"># rna mass</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rna_mass</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rotor_mass</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">nac_mass</span>
+
+        <span class="c"># rna cm</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rna_cm</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rotor_mass</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">hub_cm</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">nac_mass</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">nac_cm</span><span class="p">)</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">rna_mass</span>
+
+        <span class="c"># rna I</span>
+        <span class="n">blades_I</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_assembleI</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">blades_I</span><span class="p">)</span>
+        <span class="n">hub_I</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_assembleI</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">hub_I</span><span class="p">)</span>
+        <span class="n">nac_I</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_assembleI</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">nac_I</span><span class="p">)</span>
+        <span class="n">rotor_I</span> <span class="o">=</span> <span class="n">blades_I</span> <span class="o">+</span> <span class="n">hub_I</span>
+
+        <span class="n">R</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hub_cm</span>
+        <span class="n">rotor_I_TT</span> <span class="o">=</span> <span class="n">rotor_I</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">rotor_mass</span><span class="o">*</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">R</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">R</span><span class="p">))</span>
+
+        <span class="n">R</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nac_cm</span>
+        <span class="n">nac_I_TT</span> <span class="o">=</span> <span class="n">nac_I</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">nac_mass</span><span class="o">*</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">R</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">R</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">rna_I_TT</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unassembleI</span><span class="p">(</span><span class="n">rotor_I_TT</span> <span class="o">+</span> <span class="n">nac_I_TT</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">list_deriv_vars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">inputs</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;blades_mass&#39;</span><span class="p">,</span> <span class="s">&#39;hub_mass&#39;</span><span class="p">,</span> <span class="s">&#39;nac_mass&#39;</span><span class="p">,</span> <span class="s">&#39;hub_cm&#39;</span><span class="p">,</span> <span class="s">&#39;nac_cm&#39;</span><span class="p">,</span> <span class="s">&#39;blades_I&#39;</span><span class="p">,</span> <span class="s">&#39;hub_I&#39;</span><span class="p">,</span> <span class="s">&#39;nac_I&#39;</span><span class="p">)</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;rna_mass&#39;</span><span class="p">,</span> <span class="s">&#39;rna_cm&#39;</span><span class="p">,</span> <span class="s">&#39;rna_I_TT&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span>
+
+
+    <span class="k">def</span> <span class="nf">provideJ</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="c"># mass</span>
+        <span class="n">dmass</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="mi">3</span><span class="o">+</span><span class="mi">3</span><span class="o">*</span><span class="mi">6</span><span class="p">)])</span>
+
+        <span class="c"># cm</span>
+        <span class="n">top</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rotor_mass</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">hub_cm</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">nac_mass</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">nac_cm</span><span class="p">)</span>
+        <span class="n">dcm_dblademass</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rna_mass</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">hub_cm</span> <span class="o">-</span> <span class="n">top</span><span class="p">)</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">rna_mass</span><span class="o">**</span><span class="mi">2</span>
+        <span class="n">dcm_dhubmass</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rna_mass</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">hub_cm</span> <span class="o">-</span> <span class="n">top</span><span class="p">)</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">rna_mass</span><span class="o">**</span><span class="mi">2</span>
+        <span class="n">dcm_dnacmass</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rna_mass</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">nac_cm</span> <span class="o">-</span> <span class="n">top</span><span class="p">)</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">rna_mass</span><span class="o">**</span><span class="mi">2</span>
+        <span class="n">dcm_dhubcm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rotor_mass</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">rna_mass</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+        <span class="n">dcm_dnaccm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nac_mass</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">rna_mass</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+
+        <span class="n">dcm</span> <span class="o">=</span> <span class="n">hstack</span><span class="p">([</span><span class="n">dcm_dblademass</span><span class="p">,</span> <span class="n">dcm_dhubmass</span><span class="p">,</span> <span class="n">dcm_dnacmass</span><span class="p">,</span> <span class="n">dcm_dhubcm</span><span class="p">,</span>
+            <span class="n">dcm_dnaccm</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="o">*</span><span class="mi">6</span><span class="p">))])</span>
+
+        <span class="c"># I</span>
+        <span class="n">R</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hub_cm</span>
+        <span class="n">const</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unassembleI</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">R</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">R</span><span class="p">))</span>
+        <span class="n">dI_dblademass</span> <span class="o">=</span> <span class="n">const</span>
+        <span class="n">dI_dhubmass</span> <span class="o">=</span> <span class="n">const</span>
+        <span class="n">dI_drx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rotor_mass</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_unassembleI</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">R</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">2</span><span class="o">*</span><span class="n">R</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">R</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">R</span><span class="p">[</span><span class="mi">2</span><span class="p">]],</span> <span class="p">[</span><span class="n">R</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="p">[</span><span class="n">R</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]]))</span>
+        <span class="n">dI_dry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rotor_mass</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_unassembleI</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">R</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">R</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">],</span> <span class="p">[</span><span class="n">R</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">2</span><span class="o">*</span><span class="n">R</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">R</span><span class="p">[</span><span class="mi">2</span><span class="p">]],</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">R</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">]]))</span>
+        <span class="n">dI_drz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rotor_mass</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_unassembleI</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">R</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">R</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">R</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="p">[</span><span class="n">R</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">R</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">2</span><span class="o">*</span><span class="n">R</span><span class="p">[</span><span class="mi">2</span><span class="p">]]]))</span>
+        <span class="n">dI_dhubcm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">dI_drx</span><span class="p">,</span> <span class="n">dI_dry</span><span class="p">,</span> <span class="n">dI_drz</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
+
+        <span class="n">R</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nac_cm</span>
+        <span class="n">const</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unassembleI</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">R</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">R</span><span class="p">))</span>
+        <span class="n">dI_dnacmass</span> <span class="o">=</span> <span class="n">const</span>
+        <span class="n">dI_drx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nac_mass</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_unassembleI</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">R</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">2</span><span class="o">*</span><span class="n">R</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">R</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">R</span><span class="p">[</span><span class="mi">2</span><span class="p">]],</span> <span class="p">[</span><span class="n">R</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="p">[</span><span class="n">R</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]]))</span>
+        <span class="n">dI_dry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nac_mass</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_unassembleI</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">R</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">R</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">],</span> <span class="p">[</span><span class="n">R</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">2</span><span class="o">*</span><span class="n">R</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">R</span><span class="p">[</span><span class="mi">2</span><span class="p">]],</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">R</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">]]))</span>
+        <span class="n">dI_drz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nac_mass</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_unassembleI</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">R</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">R</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">R</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="p">[</span><span class="n">R</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">R</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">2</span><span class="o">*</span><span class="n">R</span><span class="p">[</span><span class="mi">2</span><span class="p">]]]))</span>
+        <span class="n">dI_dnaccm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">dI_drx</span><span class="p">,</span> <span class="n">dI_dry</span><span class="p">,</span> <span class="n">dI_drz</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
+
+        <span class="n">dI_dbladeI</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
+        <span class="n">dI_dhubI</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
+        <span class="n">dI_dnacI</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
+
+        <span class="n">dI</span> <span class="o">=</span> <span class="n">hstack</span><span class="p">([</span><span class="n">dI_dblademass</span><span class="p">,</span> <span class="n">dI_dhubmass</span><span class="p">,</span> <span class="n">dI_dnacmass</span><span class="p">,</span> <span class="n">dI_dhubcm</span><span class="p">,</span> <span class="n">dI_dnaccm</span><span class="p">,</span>
+            <span class="n">dI_dbladeI</span><span class="p">,</span> <span class="n">dI_dhubI</span><span class="p">,</span> <span class="n">dI_dnacI</span><span class="p">])</span>
+
+        <span class="n">J</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">dmass</span><span class="p">,</span> <span class="n">dcm</span><span class="p">,</span> <span class="n">dI</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">J</span>
+
+</div>
+<div class="viewcode-block" id="RotorLoads"><a class="viewcode-back" href="../../generated/commonse.rna.RotorLoads.html#commonse.rna.RotorLoads">[docs]</a><span class="k">class</span> <span class="nc">RotorLoads</span><span class="p">(</span><span class="n">Component</span><span class="p">):</span>
+
+    <span class="c"># variables</span>
+    <span class="n">F</span> <span class="o">=</span> <span class="n">Array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span><span class="mf">0.0</span><span class="p">,</span><span class="mf">0.0</span><span class="p">]),</span><span class="n">iotype</span><span class="o">=</span><span class="s">&#39;in&#39;</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s">&#39;forces in hub-aligned coordinate system&#39;</span><span class="p">)</span>
+    <span class="n">M</span> <span class="o">=</span> <span class="n">Array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span><span class="mf">0.0</span><span class="p">,</span><span class="mf">0.0</span><span class="p">]),</span><span class="n">iotype</span><span class="o">=</span><span class="s">&#39;in&#39;</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s">&#39;moments in hub-aligned coordinate system&#39;</span><span class="p">)</span>
+    <span class="n">r_hub</span> <span class="o">=</span> <span class="n">Array</span><span class="p">(</span><span class="n">iotype</span><span class="o">=</span><span class="s">&#39;in&#39;</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s">&#39;position of rotor hub relative to tower top in yaw-aligned c.s.&#39;</span><span class="p">)</span>
+    <span class="n">m_RNA</span> <span class="o">=</span> <span class="n">Float</span><span class="p">(</span><span class="n">iotype</span><span class="o">=</span><span class="s">&#39;in&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s">&#39;kg&#39;</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s">&#39;mass of rotor nacelle assembly&#39;</span><span class="p">)</span>
+    <span class="n">rna_cm</span> <span class="o">=</span> <span class="n">Array</span><span class="p">(</span><span class="n">iotype</span><span class="o">=</span><span class="s">&#39;in&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s">&#39;m&#39;</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s">&#39;location of RNA center of mass relative to tower top in yaw-aligned c.s.&#39;</span><span class="p">)</span>
+
+    <span class="n">rna_weightM</span> <span class="o">=</span> <span class="n">Bool</span><span class="p">(</span><span class="bp">True</span><span class="p">,</span><span class="n">iotype</span><span class="o">=</span><span class="s">&#39;in&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s">&#39;Flag to indicate whether or not the RNA weight should be considered.</span><span class="se">\</span>
+<span class="s">                      An upwind overhang may lead to unconservative estimates due to the P-Delta effect(suggest not using). For downwind turbines set to True. &#39;</span><span class="p">)</span>
+
+    <span class="c"># These are used for backwards compatibility - do not use</span>
+    <span class="n">T</span> <span class="o">=</span> <span class="n">Float</span><span class="p">(</span><span class="n">iotype</span><span class="o">=</span><span class="s">&#39;in&#39;</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s">&#39;thrust in hub-aligned coordinate system&#39;</span><span class="p">)</span> <span class="c">#THIS MEANS STILL YAWED THOUGH (Shaft tilt)</span>
+    <span class="n">Q</span> <span class="o">=</span> <span class="n">Float</span><span class="p">(</span><span class="n">iotype</span><span class="o">=</span><span class="s">&#39;in&#39;</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s">&#39;torque in hub-aligned coordinate system&#39;</span><span class="p">)</span>
+
+    <span class="c"># parameters</span>
+    <span class="n">downwind</span> <span class="o">=</span> <span class="n">Bool</span><span class="p">(</span><span class="bp">False</span><span class="p">,</span> <span class="n">iotype</span><span class="o">=</span><span class="s">&#39;in&#39;</span><span class="p">)</span>
+    <span class="n">tilt</span> <span class="o">=</span> <span class="n">Float</span><span class="p">(</span><span class="n">iotype</span><span class="o">=</span><span class="s">&#39;in&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s">&#39;deg&#39;</span><span class="p">)</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">Float</span><span class="p">(</span><span class="mf">9.81</span><span class="p">,</span> <span class="n">iotype</span><span class="o">=</span><span class="s">&#39;in&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s">&#39;m/s**2&#39;</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s">&#39;Gravity Acceleration (ABSOLUTE VALUE!)&#39;</span><span class="p">)</span>
+
+    <span class="c"># out</span>
+    <span class="n">top_F</span> <span class="o">=</span> <span class="n">Array</span><span class="p">(</span><span class="n">iotype</span><span class="o">=</span><span class="s">&#39;out&#39;</span><span class="p">)</span>  <span class="c"># in yaw-aligned</span>
+    <span class="n">top_M</span> <span class="o">=</span> <span class="n">Array</span><span class="p">(</span><span class="n">iotype</span><span class="o">=</span><span class="s">&#39;out&#39;</span><span class="p">)</span>
+
+    <span class="n">missing_deriv_policy</span> <span class="o">=</span> <span class="s">&#39;assume_zero&#39;</span>
+
+
+    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">F</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]</span>
+            <span class="n">M</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">Q</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">F</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">F</span>
+            <span class="n">M</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span>
+
+        <span class="n">F</span> <span class="o">=</span> <span class="n">DirectionVector</span><span class="o">.</span><span class="n">fromArray</span><span class="p">(</span><span class="n">F</span><span class="p">)</span><span class="o">.</span><span class="n">hubToYaw</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tilt</span><span class="p">)</span>
+        <span class="n">M</span> <span class="o">=</span> <span class="n">DirectionVector</span><span class="o">.</span><span class="n">fromArray</span><span class="p">(</span><span class="n">M</span><span class="p">)</span><span class="o">.</span><span class="n">hubToYaw</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tilt</span><span class="p">)</span>
+
+        <span class="c"># change x-direction if downwind</span>
+        <span class="n">r_hub</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">r_hub</span><span class="p">)</span>
+        <span class="n">rna_cm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rna_cm</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">downwind</span><span class="p">:</span>
+            <span class="n">r_hub</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="n">rna_cm</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">r_hub</span> <span class="o">=</span> <span class="n">DirectionVector</span><span class="o">.</span><span class="n">fromArray</span><span class="p">(</span><span class="n">r_hub</span><span class="p">)</span>
+        <span class="n">rna_cm</span> <span class="o">=</span> <span class="n">DirectionVector</span><span class="o">.</span><span class="n">fromArray</span><span class="p">(</span><span class="n">rna_cm</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_rhub</span> <span class="o">=</span> <span class="n">r_hub</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_rcm</span> <span class="o">=</span> <span class="n">rna_cm</span>
+
+        <span class="c"># aerodynamic moments</span>
+        <span class="n">M</span> <span class="o">=</span> <span class="n">M</span> <span class="o">+</span> <span class="n">r_hub</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">F</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">saveF</span> <span class="o">=</span> <span class="n">F</span>
+
+
+        <span class="c"># add weight loads</span>
+        <span class="n">F_w</span> <span class="o">=</span> <span class="n">DirectionVector</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">m_RNA</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="p">)</span>
+        <span class="n">M_w</span> <span class="o">=</span> <span class="n">rna_cm</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">F_w</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">saveF_w</span> <span class="o">=</span> <span class="n">F_w</span>
+
+        <span class="n">F</span> <span class="o">+=</span> <span class="n">F_w</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">rna_weightM</span><span class="p">:</span>
+           <span class="n">M</span> <span class="o">+=</span> <span class="n">M_w</span>
+        <span class="k">else</span><span class="p">:</span>
+ 			<span class="c">#REMOVE WEIGHT EFFECT TO ACCOUNT FOR P-Delta Effect</span>
+			<span class="k">print</span> <span class="s">&quot;!!!! No weight effect on rotor moments -TowerSE  !!!!&quot;</span>
+
+		<span class="c"># put back in array</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">top_F</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">F</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">F</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">F</span><span class="o">.</span><span class="n">z</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">top_M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">M</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">M</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">M</span><span class="o">.</span><span class="n">z</span><span class="p">])</span>
+
+
+    <span class="k">def</span> <span class="nf">list_deriv_vars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">inputs</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;F&#39;</span><span class="p">,</span> <span class="s">&#39;M&#39;</span><span class="p">,</span> <span class="s">&#39;r_hub&#39;</span><span class="p">,</span> <span class="s">&#39;m_RNA&#39;</span><span class="p">,</span> <span class="s">&#39;rna_cm&#39;</span><span class="p">)</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;top_F&#39;</span><span class="p">,</span> <span class="s">&#39;top_M&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span>
+
+    <span class="k">def</span> <span class="nf">provideJ</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">dF</span> <span class="o">=</span> <span class="n">DirectionVector</span><span class="o">.</span><span class="n">fromArray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">F</span><span class="p">)</span><span class="o">.</span><span class="n">hubToYaw</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tilt</span><span class="p">)</span>
+        <span class="n">dFx</span><span class="p">,</span> <span class="n">dFy</span><span class="p">,</span> <span class="n">dFz</span> <span class="o">=</span> <span class="n">dF</span><span class="o">.</span><span class="n">dx</span><span class="p">,</span> <span class="n">dF</span><span class="o">.</span><span class="n">dy</span><span class="p">,</span> <span class="n">dF</span><span class="o">.</span><span class="n">dz</span>
+
+        <span class="n">dtopF_dFx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">dFx</span><span class="p">[</span><span class="s">&#39;dx&#39;</span><span class="p">],</span> <span class="n">dFy</span><span class="p">[</span><span class="s">&#39;dx&#39;</span><span class="p">],</span> <span class="n">dFz</span><span class="p">[</span><span class="s">&#39;dx&#39;</span><span class="p">]])</span>
+        <span class="n">dtopF_dFy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">dFx</span><span class="p">[</span><span class="s">&#39;dy&#39;</span><span class="p">],</span> <span class="n">dFy</span><span class="p">[</span><span class="s">&#39;dy&#39;</span><span class="p">],</span> <span class="n">dFz</span><span class="p">[</span><span class="s">&#39;dy&#39;</span><span class="p">]])</span>
+        <span class="n">dtopF_dFz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">dFx</span><span class="p">[</span><span class="s">&#39;dz&#39;</span><span class="p">],</span> <span class="n">dFy</span><span class="p">[</span><span class="s">&#39;dz&#39;</span><span class="p">],</span> <span class="n">dFz</span><span class="p">[</span><span class="s">&#39;dz&#39;</span><span class="p">]])</span>
+        <span class="n">dtopF_dF</span> <span class="o">=</span> <span class="n">hstack</span><span class="p">([</span><span class="n">dtopF_dFx</span><span class="p">,</span> <span class="n">dtopF_dFy</span><span class="p">,</span> <span class="n">dtopF_dFz</span><span class="p">])</span>
+        <span class="n">dtopF_w_dm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="p">])</span>
+
+        <span class="n">dtopF</span> <span class="o">=</span> <span class="n">hstack</span><span class="p">([</span><span class="n">dtopF_dF</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">)),</span> <span class="n">dtopF_w_dm</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))])</span>
+
+
+        <span class="n">dM</span> <span class="o">=</span> <span class="n">DirectionVector</span><span class="o">.</span><span class="n">fromArray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">)</span><span class="o">.</span><span class="n">hubToYaw</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tilt</span><span class="p">)</span>
+        <span class="n">dMx</span><span class="p">,</span> <span class="n">dMy</span><span class="p">,</span> <span class="n">dMz</span> <span class="o">=</span> <span class="n">dM</span><span class="o">.</span><span class="n">dx</span><span class="p">,</span> <span class="n">dM</span><span class="o">.</span><span class="n">dy</span><span class="p">,</span> <span class="n">dM</span><span class="o">.</span><span class="n">dz</span>
+        <span class="n">dMxcross</span><span class="p">,</span> <span class="n">dMycross</span><span class="p">,</span> <span class="n">dMzcross</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_rhub</span><span class="o">.</span><span class="n">cross_deriv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">saveF</span><span class="p">,</span> <span class="s">&#39;dr&#39;</span><span class="p">,</span> <span class="s">&#39;dF&#39;</span><span class="p">)</span>
+
+        <span class="n">dtopM_dMx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">dMx</span><span class="p">[</span><span class="s">&#39;dx&#39;</span><span class="p">],</span> <span class="n">dMy</span><span class="p">[</span><span class="s">&#39;dx&#39;</span><span class="p">],</span> <span class="n">dMz</span><span class="p">[</span><span class="s">&#39;dx&#39;</span><span class="p">]])</span>
+        <span class="n">dtopM_dMy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">dMx</span><span class="p">[</span><span class="s">&#39;dy&#39;</span><span class="p">],</span> <span class="n">dMy</span><span class="p">[</span><span class="s">&#39;dy&#39;</span><span class="p">],</span> <span class="n">dMz</span><span class="p">[</span><span class="s">&#39;dy&#39;</span><span class="p">]])</span>
+        <span class="n">dtopM_dMz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">dMx</span><span class="p">[</span><span class="s">&#39;dz&#39;</span><span class="p">],</span> <span class="n">dMy</span><span class="p">[</span><span class="s">&#39;dz&#39;</span><span class="p">],</span> <span class="n">dMz</span><span class="p">[</span><span class="s">&#39;dz&#39;</span><span class="p">]])</span>
+        <span class="n">dtopM_dM</span> <span class="o">=</span> <span class="n">hstack</span><span class="p">([</span><span class="n">dtopM_dMx</span><span class="p">,</span> <span class="n">dtopM_dMy</span><span class="p">,</span> <span class="n">dtopM_dMz</span><span class="p">])</span>
+        <span class="n">dM_dF</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">dMxcross</span><span class="p">[</span><span class="s">&#39;dF&#39;</span><span class="p">],</span> <span class="n">dMycross</span><span class="p">[</span><span class="s">&#39;dF&#39;</span><span class="p">],</span> <span class="n">dMzcross</span><span class="p">[</span><span class="s">&#39;dF&#39;</span><span class="p">]])</span>
+
+        <span class="n">dtopM_dFx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">dM_dF</span><span class="p">,</span> <span class="n">dtopF_dFx</span><span class="p">)</span>
+        <span class="n">dtopM_dFy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">dM_dF</span><span class="p">,</span> <span class="n">dtopF_dFy</span><span class="p">)</span>
+        <span class="n">dtopM_dFz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">dM_dF</span><span class="p">,</span> <span class="n">dtopF_dFz</span><span class="p">)</span>
+        <span class="n">dtopM_dF</span> <span class="o">=</span> <span class="n">hstack</span><span class="p">([</span><span class="n">dtopM_dFx</span><span class="p">,</span> <span class="n">dtopM_dFy</span><span class="p">,</span> <span class="n">dtopM_dFz</span><span class="p">])</span>
+        <span class="n">dtopM_dr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">dMxcross</span><span class="p">[</span><span class="s">&#39;dr&#39;</span><span class="p">],</span> <span class="n">dMycross</span><span class="p">[</span><span class="s">&#39;dr&#39;</span><span class="p">],</span> <span class="n">dMzcross</span><span class="p">[</span><span class="s">&#39;dr&#39;</span><span class="p">]])</span>
+
+        <span class="n">dMx_w_cross</span><span class="p">,</span> <span class="n">dMy_w_cross</span><span class="p">,</span> <span class="n">dMz_w_cross</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_rcm</span><span class="o">.</span><span class="n">cross_deriv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">saveF_w</span><span class="p">,</span> <span class="s">&#39;dr&#39;</span><span class="p">,</span> <span class="s">&#39;dF&#39;</span><span class="p">)</span>
+
+        <span class="n">dtopM_drnacm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">dMx_w_cross</span><span class="p">[</span><span class="s">&#39;dr&#39;</span><span class="p">],</span> <span class="n">dMy_w_cross</span><span class="p">[</span><span class="s">&#39;dr&#39;</span><span class="p">],</span> <span class="n">dMz_w_cross</span><span class="p">[</span><span class="s">&#39;dr&#39;</span><span class="p">]])</span>
+        <span class="n">dtopM_dF_w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">dMx_w_cross</span><span class="p">[</span><span class="s">&#39;dF&#39;</span><span class="p">],</span> <span class="n">dMy_w_cross</span><span class="p">[</span><span class="s">&#39;dF&#39;</span><span class="p">],</span> <span class="n">dMz_w_cross</span><span class="p">[</span><span class="s">&#39;dF&#39;</span><span class="p">]])</span>
+        <span class="n">dtopM_dm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">dtopM_dF_w</span><span class="p">,</span> <span class="n">dtopF_w_dm</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">downwind</span><span class="p">:</span>
+            <span class="n">dtopM_dr</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="n">dtopM_drnacm</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
+
+        <span class="n">dtopM</span> <span class="o">=</span> <span class="n">hstack</span><span class="p">([</span><span class="n">dtopM_dF</span><span class="p">,</span> <span class="n">dtopM_dM</span><span class="p">,</span> <span class="n">dtopM_dr</span><span class="p">,</span> <span class="n">dtopM_dm</span><span class="p">,</span> <span class="n">dtopM_drnacm</span><span class="p">])</span>
+
+        <span class="n">J</span> <span class="o">=</span> <span class="n">vstack</span><span class="p">([</span><span class="n">dtopF</span><span class="p">,</span> <span class="n">dtopM</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">J</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li><a href="../../index.html">CommonSE 0.1.1 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, NREL.
+      Last updated on Nov 03, 2014.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>
