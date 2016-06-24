@@ -117,6 +117,9 @@ class AeroHydroLoads(Component):
         self.outloads.qdyn = np.interp(self.z, wind.z, wind.qdyn) + np.interp(self.z, wave.z, wave.qdyn)
         self.outloads.z = self.z
         #The following are redundant, at one point we will consolidate them to something that works for both tower (not using vartrees) and jacket (still using vartrees)
+
+        print "CommonSE Px (AeroHydroLoads): ", self.outloads.Px
+
         self.Px   =self.outloads.Px
         self.Py   =self.outloads.Py
         self.Pz   =self.outloads.Pz
@@ -169,6 +172,8 @@ class TowerWindDrag(Component):
         Px = Fp*cosd(beta)
         Py = Fp*sind(beta)
         Pz = 0*Fp
+
+        print "CommonSE Px (Wind): ", Px
 
         # pack data
         self.windLoads.Px = Px
