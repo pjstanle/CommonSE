@@ -100,6 +100,8 @@ class AeroHydroLoads(Component):
 
         super(AeroHydroLoads, self).__init__()
 
+        self.fd_options['force_fd'] = True
+
         #inputs
 
         self.add_param('windLoads:Px', np.zeros(nPoints), units='N/m', desc='distributed loads, force per unit length in x-direction')
@@ -185,6 +187,8 @@ class TowerWindDrag(Component):
     def __init__(self, nPoints):
 
         super(TowerWindDrag, self).__init__()
+
+        self.fd_options['force_fd'] = True
 
         # variables
         self.add_param('U', np.zeros(nPoints), units='m/s', desc='magnitude of wind speed')
@@ -314,6 +318,8 @@ class TowerWaveDrag(Component):
     def __init__(self, nPoints):
 
         super(TowerWaveDrag, self).__init__()
+
+        self.fd_options['force_fd'] = True
 
         # variables
         self.add_param('U', np.zeros(nPoints), units='m/s', desc='magnitude of wave speed')

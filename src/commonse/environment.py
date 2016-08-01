@@ -29,6 +29,8 @@ class WindBase(Component):
 
         super(WindBase, self).__init__()
 
+        self.fd_options['force_fd'] = True
+
         # TODO: if I put required=True here for Uref there is another bug
 
         # variables
@@ -50,6 +52,8 @@ class WaveBase(Component):
     def __init__(self, nPoints):
 
         super(WaveBase, self).__init__()
+
+        self.fd_options['force_fd'] = True
 
         # variables
         self.add_param('z', np.zeros(nPoints), units='m', desc='heights where wave speed should be computed')
@@ -83,6 +87,8 @@ class SoilBase(Component):
     def __init__(self):
 
         super(SoilBase, self).__init__()
+
+        self.fd_options['force_fd'] = True
 
         # out
         self.add_output('k', np.zeros(6), units='N/m', required=True, desc='spring stiffness. rigid directions should use \
@@ -187,6 +193,8 @@ class LogWind(WindBase):
 
         super(LogWind, self).__init__(nPoints)
 
+        self.fd_options['force_fd'] = True
+
         # parameters
         self.add_param('z_roughness', 10.0, units='mm', desc='surface roughness length')
         self.add_param('betaWind', 0.0, units='deg', desc='wind angle relative to inertial coordinate system')
@@ -244,6 +252,8 @@ class LinearWaves(WaveBase):
     def __init__(self, nPoints):
 
         super(LinearWaves, self).__init__(nPoints)
+
+        # self.fd_options['force_fd'] = True
 
         # variables
         self.add_param('Uc', 0.0, units='m/s', desc='mean current speed')
@@ -327,6 +337,8 @@ class TowerSoilK(SoilBase):
 
         super(TowerSoilK, self).__init__()
 
+        self.fd_options['force_fd'] = True
+
         # variable
         self.add_param('kin', np.ones(6)*float('inf'),  desc='spring stiffness. rigid directions should use \
             ``float(''inf'')``. order: (x, theta_x, y, theta_y, z, theta_z)')
@@ -343,6 +355,8 @@ class TowerSoil(SoilBase):
     def __init__(self):
 
         super(TowerSoil, self).__init__()
+
+        # self.fd_options['force_fd'] = True
         # variable
         self.add_param('r0', 1.0, units='m', desc='radius of base of tower')
         self.add_param('depth', 1.0, units='m', desc='depth of foundation in the soil')
