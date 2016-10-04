@@ -29,7 +29,10 @@ class WindBase(Component):
 
         super(WindBase, self).__init__()
 
-        self.fd_options['force_fd'] = True
+        self.deriv_options['form'] = 'central'
+        self.deriv_options['step_size'] = 1.0e-6
+        self.deriv_options['step_calc'] = 'relative'
+        self.deriv_options['type'] = 'fd'
 
         # TODO: if I put required=True here for Uref there is another bug
 
@@ -53,7 +56,10 @@ class WaveBase(Component):
 
         super(WaveBase, self).__init__()
 
-        self.fd_options['force_fd'] = True
+        self.deriv_options['form'] = 'central'
+        self.deriv_options['step_size'] = 1.0e-6
+        self.deriv_options['step_calc'] = 'relative'
+        self.deriv_options['type'] = 'fd'
 
         # variables
         self.add_param('z', np.zeros(nPoints), units='m', desc='heights where wave speed should be computed')
@@ -88,7 +94,10 @@ class SoilBase(Component):
 
         super(SoilBase, self).__init__()
 
-        self.fd_options['force_fd'] = True
+        self.deriv_options['form'] = 'central'
+        self.deriv_options['step_size'] = 1.0e-6
+        self.deriv_options['step_calc'] = 'relative'
+        self.deriv_options['type'] = 'fd'
 
         # out
         self.add_output('k', np.zeros(6), units='N/m', required=True, desc='spring stiffness. rigid directions should use \
@@ -109,6 +118,12 @@ class PowerWind(WindBase):
         super(PowerWind, self).__init__(nPoints)
 
         # parameters
+
+        self.deriv_options['form'] = 'central'
+        self.deriv_options['step_size'] = 1.0e-6
+        self.deriv_options['step_calc'] = 'relative'
+        self.deriv_options['type'] = 'fd'
+
         self.add_param('shearExp', 0.2, desc='shear exponent')
         self.add_param('betaWind', 0.0, units='deg', desc='wind angle relative to inertial coordinate system')
 
@@ -193,7 +208,10 @@ class LogWind(WindBase):
 
         super(LogWind, self).__init__(nPoints)
 
-        self.fd_options['force_fd'] = True
+        self.deriv_options['form'] = 'central'
+        self.deriv_options['step_size'] = 1.0e-6
+        self.deriv_options['step_calc'] = 'relative'
+        self.deriv_options['type'] = 'fd'
 
         # parameters
         self.add_param('z_roughness', 10.0, units='mm', desc='surface roughness length')
@@ -253,7 +271,10 @@ class LinearWaves(WaveBase):
 
         super(LinearWaves, self).__init__(nPoints)
 
-        # self.fd_options['force_fd'] = True
+        self.deriv_options['form'] = 'central'
+        self.deriv_options['step_size'] = 1.0e-6
+        self.deriv_options['step_calc'] = 'relative'
+        self.deriv_options['type'] = 'fd'
 
         # variables
         self.add_param('Uc', 0.0, units='m/s', desc='mean current speed')
@@ -337,7 +358,10 @@ class TowerSoilK(SoilBase):
 
         super(TowerSoilK, self).__init__()
 
-        self.fd_options['force_fd'] = True
+        self.deriv_options['form'] = 'central'
+        self.deriv_options['step_size'] = 1.0e-6
+        self.deriv_options['step_calc'] = 'relative'
+        self.deriv_options['type'] = 'fd'
 
         # variable
         self.add_param('kin', np.ones(6)*float('inf'),  desc='spring stiffness. rigid directions should use \
@@ -356,7 +380,11 @@ class TowerSoil(SoilBase):
 
         super(TowerSoil, self).__init__()
 
-        # self.fd_options['force_fd'] = True
+        self.deriv_options['form'] = 'central'
+        self.deriv_options['step_size'] = 1.0e-6
+        self.deriv_options['step_calc'] = 'relative'
+        self.deriv_options['type'] = 'fd'
+
         # variable
         self.add_param('r0', 1.0, units='m', desc='radius of base of tower')
         self.add_param('depth', 1.0, units='m', desc='depth of foundation in the soil')

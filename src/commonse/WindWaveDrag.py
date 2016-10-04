@@ -100,7 +100,10 @@ class AeroHydroLoads(Component):
 
         super(AeroHydroLoads, self).__init__()
 
-        self.fd_options['force_fd'] = True
+        self.deriv_options['form'] = 'central'
+        self.deriv_options['step_size'] = 1.0e-6
+        self.deriv_options['step_type'] = 'relative'
+        self.deriv_options['type'] = 'fd'
 
         #inputs
 
@@ -188,7 +191,10 @@ class TowerWindDrag(Component):
 
         super(TowerWindDrag, self).__init__()
 
-        self.fd_options['force_fd'] = True
+        self.deriv_options['form'] = 'central'
+        self.deriv_options['step_size'] = 1.0e-6
+        self.deriv_options['step_type'] = 'relative'
+        self.deriv_options['type'] = 'fd'
 
         # variables
         self.add_param('U', np.zeros(nPoints), units='m/s', desc='magnitude of wind speed')
@@ -319,7 +325,10 @@ class TowerWaveDrag(Component):
 
         super(TowerWaveDrag, self).__init__()
 
-        self.fd_options['force_fd'] = True
+        self.deriv_options['form'] = 'central'
+        self.deriv_options['step_size'] = 1.0e-6
+        self.deriv_options['step_type'] = 'relative'
+        self.deriv_options['type'] = 'fd'
 
         # variables
         self.add_param('U', np.zeros(nPoints), units='m/s', desc='magnitude of wave speed')
